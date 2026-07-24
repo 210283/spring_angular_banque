@@ -1,0 +1,8 @@
+# Supprime tous les conteneurs éteints ou suspendus (dont les vieux Ryuk)
+docker rm -f $(docker ps -a -q)
+
+# Nettoie les réseaux virtuels inutilisés qui peuvent entrer en conflit
+docker network prune -f
+
+# Redémarre le service Docker proprement
+sudo systemctl restart docker

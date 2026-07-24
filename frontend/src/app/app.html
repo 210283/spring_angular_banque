@@ -1,0 +1,24 @@
+<style>
+  :host {
+    font-family: 'Inter', sans-serif;
+    background-color: #f8f9fa;
+    display: block;
+    min-height: 100vh;
+  }
+  header {
+    background: linear-gradient(90deg, #6332d8 0%, #3b82f6 100%);
+    color: white;
+    padding: 1.5rem;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+  }
+  h1 { margin: 0; font-size: 1.8rem; }
+  main { padding: 2rem; }
+</style>
+
+<header>
+  <h1>🏛️ {{ title() }}</h1>
+</header>
+
+<main>
+  <router-outlet></router-outlet>
+</main>

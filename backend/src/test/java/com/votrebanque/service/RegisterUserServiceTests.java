@@ -1,5 +1,6 @@
 package com.votrebanque.service;
 
+import com.votrebanque.TestcontainersConfiguration;
 import com.votrebanque.application.port.outbound.ActivationTokenRepositoryPort;
 import com.votrebanque.application.port.outbound.CredentialsRepositoryPort;
 import com.votrebanque.application.service.RegisterUserService;
@@ -8,12 +9,9 @@ import com.votrebanque.domain.model.Credentials;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.context.annotation.Import;
 import org.springframework.test.context.bean.override.mockito.MockitoSpyBean;
-import org.springframework.boot.testcontainers.service.connection.ServiceConnection;
 import org.springframework.transaction.annotation.Transactional;
-import org.testcontainers.postgresql.PostgreSQLContainer;
-import org.testcontainers.junit.jupiter.Container;
-import org.testcontainers.junit.jupiter.Testcontainers;
 
 import java.util.Optional;
 
@@ -23,13 +21,9 @@ import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.when;
 
 @SpringBootTest
-@Testcontainers
+@Import(TestcontainersConfiguration.class)
 @Transactional
 class RegisterUserServiceTests {
-
-    @Container
-    @ServiceConnection
-    static PostgreSQLContainer postgres = new PostgreSQLContainer("postgres:16-alpine");
 
     @MockitoSpyBean
     private CredentialsRepositoryPort credentialsRepository;

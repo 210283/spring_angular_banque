@@ -6,16 +6,14 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.testcontainers.service.connection.ServiceConnection;
 import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc;
+import org.springframework.context.annotation.Import;
 import org.springframework.http.MediaType;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.transaction.annotation.Transactional;
-import org.testcontainers.junit.jupiter.Container;
-import org.testcontainers.junit.jupiter.Testcontainers;
-import org.testcontainers.postgresql.PostgreSQLContainer;
 
+import com.votrebanque.TestcontainersConfiguration;
 import com.votrebanque.infrastructure.persistence.entity.AccountEntity;
 import com.votrebanque.infrastructure.persistence.repository.SpringDataAccountRepository;
 import com.votrebanque.infrastructure.persistence.repository.SpringDataBeneficiaryRepository;
@@ -27,14 +25,10 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 @SpringBootTest
 @AutoConfigureMockMvc
-@Testcontainers
+@Import(TestcontainersConfiguration.class)
 @Transactional
 @WithMockUser(username = "admin", roles = "ADMIN")
 class End2EndAddBeneficiaryTest {
-
-    @Container
-    @ServiceConnection
-    static PostgreSQLContainer postgres = new PostgreSQLContainer("postgres:16-alpine");
 
     @Autowired
     private MockMvc mockMvc;
@@ -70,7 +64,6 @@ class End2EndAddBeneficiaryTest {
                 """.formatted(beneficiaryNumber);
 
         mockMvc.perform(post("/api/accounts/" + ownerNumber + "/beneficiaries")
-                //.with(SecurityMockMvcRequestPostProcessors.httpBasic("admin", "password123"))
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(jsonRequest))
                 .andExpect(status().isCreated())
@@ -96,7 +89,6 @@ class End2EndAddBeneficiaryTest {
                 """.formatted(beneficiaryNumber);
 
         mockMvc.perform(post("/api/accounts/" + ownerNumber + "/beneficiaries")
-                //.with(SecurityMockMvcRequestPostProcessors.httpBasic("admin", "password123"))
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(jsonRequest))
                 .andExpect(status().isBadRequest());
@@ -119,7 +111,6 @@ class End2EndAddBeneficiaryTest {
                 """;
 
         mockMvc.perform(post("/api/accounts/" + ownerNumber + "/beneficiaries")
-                //.with(SecurityMockMvcRequestPostProcessors.httpBasic("admin", "password123"))
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(jsonRequest))
                 .andExpect(status().isNotFound());

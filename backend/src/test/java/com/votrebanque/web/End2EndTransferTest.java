@@ -4,15 +4,12 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc;
+import org.springframework.context.annotation.Import;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.testcontainers.service.connection.ServiceConnection;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.transaction.annotation.Transactional;
-import org.testcontainers.postgresql.PostgreSQLContainer;
-import org.testcontainers.junit.jupiter.Container;
-import org.testcontainers.junit.jupiter.Testcontainers;
-
+import com.votrebanque.TestcontainersConfiguration;
 import com.votrebanque.infrastructure.persistence.entity.AccountEntity;
 import com.votrebanque.infrastructure.persistence.entity.BeneficiaryEntity;
 import com.votrebanque.infrastructure.persistence.repository.SpringDataAccountRepository;
@@ -29,14 +26,10 @@ import java.util.UUID;
 
 @SpringBootTest
 @AutoConfigureMockMvc
-@Testcontainers 
+@Import(TestcontainersConfiguration.class)
 @Transactional 
 @WithMockUser(username = "admin", roles = "ADMIN")
 class End2EndTransferTest {
-
-  @Container
-  @ServiceConnection
-  static PostgreSQLContainer postgres = new PostgreSQLContainer("postgres:16-alpine");
 
   @Autowired
   private MockMvc mockMvc;
@@ -78,7 +71,6 @@ class End2EndTransferTest {
             """;
 
     mockMvc.perform(post("/api/accounts/transfer")
-            //.with(SecurityMockMvcRequestPostProcessors.httpBasic("admin", "password123"))
             .contentType(MediaType.APPLICATION_JSON)
             .content(jsonRequest))
             .andExpect(status().isOk())
@@ -101,7 +93,6 @@ class End2EndTransferTest {
             """;
 
     mockMvc.perform(post("/api/accounts/transfer")
-            //.with(SecurityMockMvcRequestPostProcessors.httpBasic("admin", "password123"))
             .contentType(MediaType.APPLICATION_JSON)
             .content(jsonRequest))
             .andExpect(status().isBadRequest());
@@ -127,7 +118,6 @@ class End2EndTransferTest {
             """;
 
     mockMvc.perform(post("/api/accounts/transfer")
-            //.with(SecurityMockMvcRequestPostProcessors.httpBasic("admin", "password123"))
             .contentType(MediaType.APPLICATION_JSON)
             .content(jsonRequest))
             .andExpect(status().isBadRequest());

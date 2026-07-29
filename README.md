@@ -1,3 +1,5 @@
+![CI](https://github.com/210283/spring_angular_banque/actions/workflows/ci.yml/badge.svg)
+
 # VotreBanque
 
 Application bancaire fullstack : backend Spring Boot (architecture hexagonale) + frontend Angular, avec authentification JWT, activation de compte par email, et gestion de virements/bénéficiaires.

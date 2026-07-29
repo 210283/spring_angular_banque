@@ -1,11 +1,9 @@
 name: CI
-
 on:
   push:
     branches: [main]
   pull_request:
     branches: [main]
-
 jobs:
   backend:
     name: Backend (Spring Boot)
@@ -16,18 +14,15 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v5
-
       - name: Set up JDK 21
         uses: actions/setup-java@v5
         with:
           java-version: "21"
           distribution: "temurin"
           cache: "maven"
-
+          cache-dependency-path: backend/pom.xml
       - name: Run tests
-        # Testcontainers a besoin de Docker : disponible nativement sur les runners ubuntu-latest
         run: mvn -B test
-
       - name: Publish test report
         if: always()
         uses: actions/upload-artifact@v5
@@ -35,7 +30,6 @@ jobs:
           name: backend-surefire-reports
           path: backend/target/surefire-reports/
           retention-days: 7
-
   frontend:
     name: Frontend (Angular)
     runs-on: ubuntu-latest
@@ -45,23 +39,18 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v5
-
       - name: Set up Node.js
         uses: actions/setup-node@v5
         with:
           node-version: "22"
           cache: "npm"
           cache-dependency-path: frontend/package-lock.json
-
       - name: Install dependencies
         run: npm ci
-
       - name: Run unit tests
         run: npm test -- --watch=false
-
       - name: Build (production)
         run: npm run build -- --configuration production
-
   docker-build:
     name: Validate Docker images
     runs-on: ubuntu-latest
@@ -69,9 +58,7 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v5
-
       - name: Build backend image
         run: docker build -t votrebanque-backend:ci ./backend
-
       - name: Build frontend image
         run: docker build -t votrebanque-frontend:ci ./frontend

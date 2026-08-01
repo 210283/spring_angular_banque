@@ -38,3 +38,9 @@ export interface BeneficiaryResponse {
   beneficiaryAccountNumber: string;
   accountName: string;
 }
+
+export interface ActivationEmailPreview {
+  subject: string;
+  text: string;
+  html: string;
+}

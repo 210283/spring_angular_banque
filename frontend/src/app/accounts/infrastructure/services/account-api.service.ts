@@ -8,7 +8,8 @@ import {
   AccountCreationResponse,
   AccountSummaryResponse,
   BeneficiaryRequest,
-  BeneficiaryResponse
+  BeneficiaryResponse,
+  ActivationEmailPreview
 } from '../../domain/entities/account.model';
 
 @Injectable({
@@ -41,5 +42,9 @@ export class AccountApiService {
 
   getBeneficiaries(accountNumber: string): Observable<BeneficiaryResponse[]> {
     return this.http.get<BeneficiaryResponse[]>(`${this.API_URL}/${accountNumber}/beneficiaries`);
+  }
+
+  getActivationEmailPreview(username: string): Observable<ActivationEmailPreview> {
+    return this.http.get<ActivationEmailPreview>(`/api/dev/activation-email/${username}`);
   }
 }

@@ -4,6 +4,8 @@ import com.votrebanque.domain.exception.InsufficientFundsException;
 import com.votrebanque.domain.exception.InvalidCredentialsException;
 import com.votrebanque.application.service.RegisterUserService;
 import com.votrebanque.domain.exception.AccountNotFoundException;
+import com.votrebanque.domain.exception.EmailNotFoundException;
+
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ProblemDetail;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -46,5 +48,10 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(InvalidCredentialsException.class)
     public ProblemDetail handleInvalidCredentials(InvalidCredentialsException ex) {
         return ProblemDetail.forStatusAndDetail(HttpStatus.UNAUTHORIZED, ex.getMessage());
+    }
+
+    @ExceptionHandler(EmailNotFoundException.class)
+    public ProblemDetail handleEmailNotFound(EmailNotFoundException ex) {
+        return ProblemDetail.forStatusAndDetail(HttpStatus.NOT_FOUND, ex.getMessage());
     }
 }

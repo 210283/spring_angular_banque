@@ -29,8 +29,7 @@ public class SmtpEmailAdapter implements EmailSenderPort {
             "%s/activate?user=%s&token=%s", frontendBaseUrl, username, rawToken
         );
         message.setText("Welcome! Please activate your account by clicking the following link:\n" 
-                + activationUrl + "\n"
-                + "Username: " + username);
+                + activationUrl + "\n");
 
         mailSender.send(message);
     }

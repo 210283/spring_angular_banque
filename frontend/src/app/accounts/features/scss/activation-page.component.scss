@@ -53,7 +53,7 @@
     button {
       margin-top: 1.5rem;
       padding: 0.7rem;
-      background-color: #1a1a2e; // Même bleu/noir foncé
+      background-color: #1a1a2e;
       color: white;
       border: none;
       border-radius: 4px;
@@ -69,7 +69,6 @@
     }
   }
 
-  // Erreurs globales (liens ou soumission)
   .error {
     color: #d32f2f;
     background-color: #ffebee;
@@ -80,7 +79,6 @@
     font-weight: 500;
   }
 
-  // Erreurs de validation sous les inputs
   .field-error {
     color: #d32f2f;
     font-size: 0.85rem;
@@ -88,7 +86,6 @@
     line-height: 1.2;
   }
 
-  // Message de succès final
   .success {
     background-color: #f1f8e9;
     border: 1px solid #c5e1a5;

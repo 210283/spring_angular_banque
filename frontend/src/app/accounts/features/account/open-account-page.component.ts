@@ -1,15 +1,16 @@
 import { CommonModule } from '@angular/common';
 import { Component, inject, signal } from '@angular/core';
+import { DomSanitizer } from '@angular/platform-browser';
 import { FormOpenAccountComponent } from '../../ui/forms/form-open-account.component';
 import { AccountApiService } from '../../infrastructure/services/account-api.service';
-import { OpenAccountRequest, AccountCreationResponse } from '../../domain/entities/account.model';
-import { Router } from '@angular/router';
+import { OpenAccountRequest, AccountCreationResponse, ActivationEmailPreview } from '../../domain/entities/account.model';
+import { Router, RouterLink } from '@angular/router';
 import { AuthService } from '../../../auth/auth.service';
 
 @Component({
   selector: 'app-page-open-account',
   standalone: true,
-  imports: [CommonModule, FormOpenAccountComponent],
+  imports: [CommonModule, FormOpenAccountComponent, RouterLink],
   template: `
     <div class="account-container">
       <h2>Open Account</h2>
@@ -26,7 +27,27 @@ import { AuthService } from '../../../auth/auth.service';
         <section class="success-message">
           <p>Your account has been successfully created.</p>
           <p>Your client ID is : <strong>{{ successResponse()?.username }}</strong></p>
-          <p>An activation email has been sent to you. Follow the link to choose your password and activate your account.</p>
+
+          @if(!emailPreview()){
+            <button (click)="loadActivationEmail()" [disabled]="emailLoading()">
+              {{ emailLoading() ? 'Loading...' : "View the activation email" }}
+            </button>
+          }
+
+          @if(emailError()){
+            <div class="summary-error">
+              {{ emailError() }}
+              <button (click)="loadActivationEmail()">Try again</button>
+            </div>
+          }
+
+          @if(emailPreview(); as preview){
+            <div class="email-preview">
+              <p><strong>Object :</strong> {{ preview.subject }}</p>
+              <div class="email-preview-body" [innerHTML]="sanitizedHtml()"></div>
+            </div>
+          }
+
           <div class="back-link">
             <a routerLink="/login">Back to Login</a>
           </div>
@@ -37,12 +58,17 @@ import { AuthService } from '../../../auth/auth.service';
   styleUrls: ['../scss/page-open-account.component.scss']
 })
 export class OpenAccountPageComponent {
+  private accountApiService = inject(AccountApiService);
+  private authService = inject(AuthService);
+  private sanitizer = inject(DomSanitizer);
+
   isSubmitting = signal<boolean>(false);
   successResponse = signal<AccountCreationResponse | null>(null);
   errorMessage = signal<string | null>(null);
-  private router = inject(Router);
-  private accountApiService = inject(AccountApiService);
-  private authService = inject(AuthService);
+
+  emailPreview = signal<ActivationEmailPreview | null>(null);
+  emailLoading = signal(false);
+  emailError = signal<string | null>(null);
 
   openAccount(request: OpenAccountRequest) {
     this.errorMessage.set('');
@@ -61,5 +87,46 @@ export class OpenAccountPageComponent {
         this.isSubmitting.set(false);
       }
     });
+  }
+
+  loadActivationEmail(): void {
+    if (!this.successResponse()) return;
+
+    this.emailLoading.set(true);
+    this.emailError.set(null);
+
+    this.accountApiService.getActivationEmailPreview(this.successResponse()?.username ||"").subscribe({
+      next: (preview) => {
+        this.emailPreview.set(preview);
+        this.emailLoading.set(false);
+      },
+      error: () => {
+        this.emailLoading.set(false);
+        this.emailError.set("Email not yet received (some seconds of delay possible). Please try again.");
+      }
+    });
+  }
+
+  sanitizedHtml() {
+    const preview = this.emailPreview();
+    if (!preview) return '';
+
+    // HTML email case.
+    if (preview.html && preview.html.trim().length > 0) {
+      return this.sanitizer.bypassSecurityTrustHtml(preview.html);
+    }
+
+    const escaped = this.escapeHtml(preview.text || '');
+    const linked = escaped.replace(/(https?:\/\/[^\s]+)/g, '<a href="$1" target="_blank">$1</a>');
+    const withBreaks = linked.replace(/\n/g, '<br>');
+
+    return this.sanitizer.bypassSecurityTrustHtml(withBreaks);
+  }
+
+  private escapeHtml(text: string): string {
+    return text
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;');
   }
 }

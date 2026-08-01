@@ -11,12 +11,13 @@ import {
   BeneficiaryResponse,
   ActivationEmailPreview
 } from '../../domain/entities/account.model';
+import { environment } from '../../../../environments/environment';
 
 @Injectable({
   providedIn: 'root'
 })
 export class AccountApiService {
-  private readonly API_URL = '/api/accounts';
+  private readonly API_URL = `${environment.apiUrl}/api/accounts`;
 
   constructor(private http: HttpClient) {}
 

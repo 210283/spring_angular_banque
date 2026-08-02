@@ -18,6 +18,7 @@ export interface OpenAccountRequest {
 export interface AccountCreationResponse {
   accountId: string;
   username: string;
+  activationUrl: string;
 }
 
 export interface AccountSummaryResponse {

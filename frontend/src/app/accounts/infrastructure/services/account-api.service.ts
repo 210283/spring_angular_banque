@@ -46,6 +46,6 @@ export class AccountApiService {
   }
 
   getActivationEmailPreview(username: string): Observable<ActivationEmailPreview> {
-    return this.http.get<ActivationEmailPreview>(`/api/dev/activation-email/${username}`);
+    return this.http.get<ActivationEmailPreview>(`${environment.apiUrl}/api/dev/activation-email/${username}`);
   }
 }

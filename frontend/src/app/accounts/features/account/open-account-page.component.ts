@@ -4,8 +4,9 @@ import { DomSanitizer } from '@angular/platform-browser';
 import { FormOpenAccountComponent } from '../../ui/forms/form-open-account.component';
 import { AccountApiService } from '../../infrastructure/services/account-api.service';
 import { OpenAccountRequest, AccountCreationResponse, ActivationEmailPreview } from '../../domain/entities/account.model';
-import { Router, RouterLink } from '@angular/router';
+import { RouterLink } from '@angular/router';
 import { AuthService } from '../../../auth/auth.service';
+import { environment } from '../../../../environments/environment';
 
 @Component({
   selector: 'app-page-open-account',
@@ -28,24 +29,30 @@ import { AuthService } from '../../../auth/auth.service';
           <p>Your account has been successfully created.</p>
           <p>Your client ID is : <strong>{{ successResponse()?.username }}</strong></p>
 
-          @if(!emailPreview()){
-            <button (click)="loadActivationEmail()" [disabled]="emailLoading()">
-              {{ emailLoading() ? 'Loading...' : "View the activation email" }}
-            </button>
-          }
+          <p>Activation link :
+            <a [href]="successResponse()?.activationUrl" target="_blank">{{ successResponse()?.activationUrl }}</a>
+          </p>
 
-          @if(emailError()){
-            <div class="summary-error">
-              {{ emailError() }}
-              <button (click)="loadActivationEmail()">Try again</button>
-            </div>
-          }
+          @if (!isProduction) {
+            @if(!emailPreview()){
+              <button (click)="loadActivationEmail()" [disabled]="emailLoading()">
+                {{ emailLoading() ? 'Loading...' : "View the activation email" }}
+              </button>
+            }
 
-          @if(emailPreview(); as preview){
-            <div class="email-preview">
-              <p><strong>Object :</strong> {{ preview.subject }}</p>
-              <div class="email-preview-body" [innerHTML]="sanitizedHtml()"></div>
-            </div>
+            @if(emailError()){
+              <div class="summary-error">
+                {{ emailError() }}
+                <button (click)="loadActivationEmail()">Try again</button>
+              </div>
+            }
+
+            @if(emailPreview(); as preview){
+              <div class="email-preview">
+                <p><strong>Object :</strong> {{ preview.subject }}</p>
+                <div class="email-preview-body" [innerHTML]="sanitizedHtml()"></div>
+              </div>
+            }
           }
 
           <div class="back-link">
@@ -61,6 +68,7 @@ export class OpenAccountPageComponent {
   private accountApiService = inject(AccountApiService);
   private authService = inject(AuthService);
   private sanitizer = inject(DomSanitizer);
+  isProduction = environment.production;
 
   isSubmitting = signal<boolean>(false);
   successResponse = signal<AccountCreationResponse | null>(null);

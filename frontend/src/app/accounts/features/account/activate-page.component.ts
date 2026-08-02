@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { ReactiveFormsModule, FormBuilder, Validators, AbstractControl, ValidationErrors } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 import { HttpClient } from '@angular/common/http';
+import { environment } from '../../../../environments/environment';
 
 @Component({
   selector: 'app-activate-page',
@@ -108,7 +109,7 @@ export class ActivatePageComponent implements OnInit {
       newPassword: this.form.value.newPassword
     };
 
-    this.http.post('/api/auth/activate', payload).subscribe({
+    this.http.post(`${environment.apiUrl}/api/auth/activate`, payload).subscribe({
       next: () => {
         this.successMessage = 'Your account has been activated successfully!';
         this.isSubmitting = false;

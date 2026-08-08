@@ -1,4 +1,4 @@
-import { Component, output } from '@angular/core';
+import { Component, output, input } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 
 @Component({
@@ -7,8 +7,10 @@ import { FormsModule } from '@angular/forms';
   imports: [FormsModule],
   template: `
     <div class="banque-form">
-      <input type="number" [(ngModel)]="amount" placeholder="Amount to transfer (ex: 50)" />
-      <button (click)="valid()">Confirm transfer</button>
+      <input type="number" [(ngModel)]="amount" placeholder="Amount to transfer (ex: 50)" [disabled]="isSubmitting()" />
+      <button (click)="valid()" [disabled]="isSubmitting()">
+        {{ isSubmitting() ? 'Processing...' : 'Confirm transfer' }}
+      </button>
     </div>
   `,
   styleUrl: '../../features/scss/form-transfer.component.scss'
@@ -16,7 +18,7 @@ import { FormsModule } from '@angular/forms';
 export class FormTransferComponent {
   amount: number = 0;
 
-  // The event is emitted to the parent. (la Feature)
+  isSubmitting = input<boolean>(false);
   onValidTransfer = output<number>();
 
   valid() {

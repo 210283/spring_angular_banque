@@ -1,4 +1,4 @@
-import { Component, output, inject } from '@angular/core';
+import { Component, output, inject, input } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { BeneficiaryRequest } from '../../domain/entities/account.model';
 
@@ -20,7 +20,9 @@ import { BeneficiaryRequest } from '../../domain/entities/account.model';
         <label for="ownerName">Owner name :</label>
         <input id="ownerName" formControlName="ownerName" type="text" />
       </div>
-      <button type="submit" [disabled]="beneficiaryForm.invalid">Add beneficiary</button>
+      <button type="submit" [disabled]="beneficiaryForm.invalid || isSubmitting()">
+        {{ isSubmitting() ? 'Adding...' : 'Add beneficiary' }}
+      </button>
     </form>
   `,
   styleUrl: '../../features/scss/form-add-beneficiary.component.scss'
@@ -28,6 +30,7 @@ import { BeneficiaryRequest } from '../../domain/entities/account.model';
 export class FormAddBeneficiaryComponent {
   private fb = inject(FormBuilder);
 
+  isSubmitting = input<boolean>(false);
   onSubmitBeneficiary = output<BeneficiaryRequest>();
 
   beneficiaryForm = this.fb.nonNullable.group({

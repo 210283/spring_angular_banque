@@ -20,8 +20,8 @@ import { BeneficiaryRequest } from '../../domain/entities/account.model';
         <p class="error">{{ errorMessage() }}</p>
       }
 
-      @if (!loading() && !errorMessage()) {
-        <app-form-add-beneficiary (onSubmitBeneficiary)="addBeneficiary($event)" />
+      @if (!loading()) {
+        <app-form-add-beneficiary [isSubmitting]="isSubmitting()" (onSubmitBeneficiary)="addBeneficiary($event)" />
       }
     </div>
   `,
@@ -33,6 +33,7 @@ export class AddBeneficiaryPageComponent implements OnInit {
 
   errorMessage = signal<string | null>(null);
   loading = signal(false);
+  isSubmitting = signal(false);
 
   private currentAccountNumber: string | null = null;
 
@@ -57,12 +58,16 @@ export class AddBeneficiaryPageComponent implements OnInit {
       return;
     }
 
+    this.isSubmitting.set(true);
+    this.errorMessage.set(null);
+
     this.apiService.addBeneficiary(this.currentAccountNumber, request).subscribe({
       next: () => {
         alert("Beneficiary added successfully.");
         this.router.navigate(['/accounts', 'transfer']);
       },
       error: () => {
+        this.isSubmitting.set(false);
         this.errorMessage.set("An error occurred while adding the beneficiary.");
       }
     });

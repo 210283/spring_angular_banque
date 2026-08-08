@@ -20,9 +20,9 @@ import { Router } from '@angular/router';
         <section class="summary-error">{{ errorMessage() }}</section>
       }
 
-      @if (!loading() && !errorMessage()){
+      @if (!loading()){
         <ng-container>
-          <button class="btn-secondary" (click)="goToAddBeneficiary()">Add beneficiary</button>
+          <button class="btn-secondary" (click)="goToAddBeneficiary()" [disabled]="isSubmitting()">Add beneficiary</button>
 
           @if (!selectedBeneficiary) {
             <div class="beneficiary-selection">
@@ -40,12 +40,12 @@ import { Router } from '@angular/router';
             <div class="selected-info">
               <p>Selected beneficiary : <strong>{{ selectedBeneficiary.accountName }}</strong></p>
               <p><small>Account: {{ selectedBeneficiary.beneficiaryAccountNumber }}</small></p>
-              <button class="btn-secondary" (click)="selectedBeneficiary = null">Change beneficiary</button>
+              <button class="btn-secondary" (click)="selectedBeneficiary = null" [disabled]="isSubmitting()">Change beneficiary</button>
             </div>
 
             <hr />
 
-            <app-form-transfer (onValidTransfer)="makeTransfer($event)"></app-form-transfer>
+            <app-form-transfer [isSubmitting]="isSubmitting()" (onValidTransfer)="makeTransfer($event)"></app-form-transfer>
           }
         </ng-container>
       }
@@ -56,6 +56,7 @@ import { Router } from '@angular/router';
 export class TransferPageComponent implements OnInit {
   errorMessage = signal('');
   loading = signal(false);
+  isSubmitting = signal(false);
   beneficiaries = signal<BeneficiaryResponse[]>([]);
 
   private sourceAccountNumber = '';
@@ -92,6 +93,8 @@ export class TransferPageComponent implements OnInit {
   makeTransfer(amountToTransfer: number) {
     if (!this.selectedBeneficiary) return;
 
+    this.isSubmitting.set(true);
+
     const payload: TransferRequest = {
       sourceAccountNumber: this.sourceAccountNumber,
       destinationAccountNumber: this.selectedBeneficiary.beneficiaryAccountNumber,
@@ -101,12 +104,14 @@ export class TransferPageComponent implements OnInit {
     this.accountApiService.transfer(payload).subscribe({
       next: (reponseMessage) => {
         alert(reponseMessage);
+        this.isSubmitting.set(false);
         this.selectedBeneficiary = null;
         this.router.navigate(['accounts', 'summary']);
       },
       error: (err) => {
-        let messageErreur = 'Transfer failed.';
+        this.isSubmitting.set(false);
 
+        let messageErreur = 'Transfer failed.';
         const parsedError = typeof err.error === 'string' ? JSON.parse(err.error) : err.error;
         if (parsedError?.detail) {
           messageErreur = parsedError.detail;

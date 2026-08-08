@@ -1,6 +1,5 @@
 package com.votrebanque.infrastructure.notification;
 
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.stereotype.Component;
@@ -11,26 +10,30 @@ import com.votrebanque.application.port.outbound.EmailSenderPort;
 public class SmtpEmailAdapter implements EmailSenderPort {
 
     private final JavaMailSender mailSender;
-    private final String frontendBaseUrl;
 
-    public SmtpEmailAdapter(JavaMailSender mailSender, @Value("${app.frontend.base-url}") String frontendBaseUrl) {
+    public SmtpEmailAdapter(JavaMailSender mailSender) {
         this.mailSender = mailSender;
-        this.frontendBaseUrl = frontendBaseUrl;
     }
 
     @Override
-    public void sendActivationEmail(String username, String rawToken) {
+    public void sendActivationEmail(String username, String activationUrl) {
         SimpleMailMessage message = new SimpleMailMessage();
         message.setTo(username + "@votrebanque.com");
         message.setFrom("noreply@votrebanque.com");
         message.setSubject("Activate your bank account");
 
-        String activationUrl = String.format(
-            "%s/activate?user=%s&token=%s", frontendBaseUrl, username, rawToken
-        );
-        message.setText("Welcome! Please activate your account by clicking the following link:\n" 
-                + activationUrl + "\n");
+        String body = String.format("""
+            Welcome to VotreBanque!
 
+            Your login ID is: %s
+
+            To activate your account and choose your password, click the following link:
+            %s
+
+            This link is valid for 24 hours.
+            """, username, activationUrl);
+
+        message.setText(body);
         mailSender.send(message);
     }
 }

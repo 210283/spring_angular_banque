@@ -34,9 +34,9 @@ public class OpenAccountService implements OpenAccountUseCase {
         bankAccountRepository.save(newAccount);
 
         // Generate the client's login username (11 random digits)
-        String username = registerUserUseCase.registerUser(newAccountId);
+        RegisterUserUseCase.RegistrationResult registration = registerUserUseCase.registerUser(newAccountId);
 
         // Return the ID so that the REST controller can send it to front
-        return new AccountOpeningResult(newAccountId, username);
+        return new AccountOpeningResult(newAccountId, registration.username(), registration.activationUrl());
     }
 }

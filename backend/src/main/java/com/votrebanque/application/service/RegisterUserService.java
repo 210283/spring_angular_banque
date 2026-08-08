@@ -6,6 +6,7 @@ import java.util.Base64;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -22,7 +23,6 @@ import com.votrebanque.domain.model.UsernameGenerator;
 public class RegisterUserService implements RegisterUserUseCase {
 
     private static final int MAX_GENERATION_ATTEMPTS = 10;
-
     private static final Logger log = LoggerFactory.getLogger(RegisterUserService.class);
     private static final Duration TOKEN_VALIDITY = Duration.ofHours(24);
 
@@ -31,6 +31,9 @@ public class RegisterUserService implements RegisterUserUseCase {
     private final PasswordEncoder passwordEncoder;
     private final EmailSenderPort emailSender;
 
+    @Value("${app.frontend.base-url}")
+    private String frontendBaseUrl;
+    
     public RegisterUserService(CredentialsRepositoryPort credentialsRepository,
                                 ActivationTokenRepositoryPort tokenRepository,
                                 PasswordEncoder passwordEncoder,
@@ -42,7 +45,7 @@ public class RegisterUserService implements RegisterUserUseCase {
     }
 
     @Override
-    public String registerUser(AccountId accountId) {
+    public RegistrationResult registerUser(AccountId accountId) {
         String username = generateUniqueUsername();
 
         String temporaryPassword = generateSecureRandomToken();
@@ -57,15 +60,17 @@ public class RegisterUserService implements RegisterUserUseCase {
         );
         tokenRepository.save(token);
 
+        String activationUrl = String.format("%s/activate?user=%s&token=%s", frontendBaseUrl, username, rawToken);
+        
         try {
-            emailSender.sendActivationEmail(username, rawToken);
+            emailSender.sendActivationEmail(username, activationUrl);
             token.markEmailSent();
         } catch (Exception e) {
             log.error("Failed to send activation email to {}", username, e);
         }
         tokenRepository.save(token);
         
-        return username;
+        return new RegistrationResult(username, activationUrl);
     }
 
     private String generateUniqueUsername() {

@@ -5,6 +5,7 @@ import com.votrebanque.TestcontainersConfiguration;
 import com.votrebanque.application.port.inbound.AccountOpeningResult;
 import com.votrebanque.application.port.outbound.AccountRepositoryPort;
 import com.votrebanque.domain.model.Account;
+import com.votrebanque.domain.model.AccountType;
 import com.votrebanque.domain.model.Money;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -27,6 +28,9 @@ class OpenAccountServiceTest {
     @Autowired
     private OpenAccountService openAccountService;
 
+    @Autowired
+    private AccountType accountType;
+
     @Test
     void shouldOpenAccountSuccessfullyWithGeneratedId() {
         // Given
@@ -34,7 +38,7 @@ class OpenAccountServiceTest {
         Money initialDeposit = new Money(BigDecimal.valueOf(250.0));
 
         // When
-        AccountOpeningResult newAccount = openAccountService.openAccount(owner, initialDeposit);
+        AccountOpeningResult newAccount = openAccountService.openAccount(owner, initialDeposit, accountType, "");
 
         // Then
         assertThat(newAccount.accountId().value()).matches("^FR76\\d{7}$");
@@ -49,7 +53,7 @@ class OpenAccountServiceTest {
         String owner = "Charlie";
         Money negativeDeposit = new Money(BigDecimal.valueOf(-50.0));
 
-        assertThatThrownBy(() -> openAccountService.openAccount(owner, negativeDeposit))
+        assertThatThrownBy(() -> openAccountService.openAccount(owner, negativeDeposit, accountType, ""))
                 .isInstanceOf(IllegalArgumentException.class)
                 .hasMessageContaining("The initial deposit must be greater than 20.00");
     }
@@ -59,7 +63,7 @@ class OpenAccountServiceTest {
         String owner = "Charlie";
         Money zeroDeposit = new Money(BigDecimal.valueOf(0.0));
 
-        assertThatThrownBy(() -> openAccountService.openAccount(owner, zeroDeposit))
+        assertThatThrownBy(() -> openAccountService.openAccount(owner, zeroDeposit, accountType, ""))
                 .isInstanceOf(IllegalArgumentException.class)
                 .hasMessageContaining("The initial deposit must be greater than 20.00");
     }

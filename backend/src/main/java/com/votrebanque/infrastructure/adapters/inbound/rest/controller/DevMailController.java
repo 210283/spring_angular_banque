@@ -18,6 +18,6 @@ public class DevMailController {
 
     @GetMapping("/activation-email/{username}")
     public GetActivationEmailPreviewUseCase.EmailPreviewResult getActivationEmail(@PathVariable String username) {
-        return getActivationEmailPreviewUseCase.getActivationEmailPreview(username);
+        return getActivationEmailPreviewUseCase.getActivationEmail(username);
     }
 }

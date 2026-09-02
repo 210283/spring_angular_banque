@@ -2,6 +2,7 @@ package com.votrebanque.web;
 
 import com.votrebanque.infrastructure.persistence.repository.SpringDataAccountRepository;
 import com.votrebanque.TestcontainersConfiguration;
+import com.votrebanque.domain.model.AccountType;
 import com.votrebanque.infrastructure.persistence.entity.AccountEntity;
 import com.votrebanque.infrastructure.persistence.repository.SpringDataBeneficiaryRepository;
 import com.votrebanque.infrastructure.persistence.entity.BeneficiaryEntity;
@@ -18,6 +19,7 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
+import java.time.LocalDate;
 
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.user;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
@@ -53,9 +55,9 @@ public class End2EndGetBeneficiariesTest {
         accountRepository.deleteAll();
         beneficiaryRepository.deleteAll();
 
-        accountRepository.saveAndFlush(new AccountEntity(ACCOUNT_NUMBER, "Charlie", BigDecimal.valueOf(1234.50), null));
-        accountRepository.saveAndFlush(new AccountEntity(BENEFICIARY_1_ACCOUNT, "Alice", BigDecimal.valueOf(200.00), null));
-        accountRepository.saveAndFlush(new AccountEntity(BENEFICIARY_2_ACCOUNT, "Bob", BigDecimal.valueOf(300.50), null));
+        accountRepository.saveAndFlush(new AccountEntity(ACCOUNT_NUMBER, "Charlie", BigDecimal.valueOf(1234.50), AccountType.CURRENT, BigDecimal.ZERO, LocalDate.now(), null));
+        accountRepository.saveAndFlush(new AccountEntity(BENEFICIARY_1_ACCOUNT, "Alice", BigDecimal.valueOf(200.00), AccountType.CURRENT, BigDecimal.ZERO, LocalDate.now(), null));
+        accountRepository.saveAndFlush(new AccountEntity(BENEFICIARY_2_ACCOUNT, "Bob", BigDecimal.valueOf(300.50), AccountType.CURRENT, BigDecimal.ZERO, LocalDate.now(), null));
 
         BeneficiaryEntity b1 = new BeneficiaryEntity(UUID.randomUUID().toString(), "b-id-1", "FR769876567", ACCOUNT_NUMBER, null);
         BeneficiaryEntity b2 = new BeneficiaryEntity(UUID.randomUUID().toString(), "b-id-2", "FR761112223", ACCOUNT_NUMBER, null);
@@ -86,7 +88,7 @@ public class End2EndGetBeneficiariesTest {
     void shouldReturnEmptyListWhenAccountHasNoBeneficiaries() throws Exception {
         String emptyAccountStr = "FR760000000";
         
-        AccountEntity emptyAccount = new AccountEntity(emptyAccountStr, "John Doe", BigDecimal.valueOf(100.00), null);
+        AccountEntity emptyAccount = new AccountEntity(emptyAccountStr, "John Doe", BigDecimal.valueOf(100.00), AccountType.CURRENT, BigDecimal.ZERO, LocalDate.now(), null);
         accountRepository.saveAndFlush(emptyAccount);
 
         mockMvc.perform(get("/api/accounts/" + emptyAccountStr + "/beneficiaries")

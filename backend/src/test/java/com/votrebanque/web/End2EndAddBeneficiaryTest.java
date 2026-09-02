@@ -1,6 +1,7 @@
 package com.votrebanque.web;
 
 import java.math.BigDecimal;
+import java.time.LocalDate;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -14,6 +15,7 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.votrebanque.TestcontainersConfiguration;
+import com.votrebanque.domain.model.AccountType;
 import com.votrebanque.infrastructure.persistence.entity.AccountEntity;
 import com.votrebanque.infrastructure.persistence.repository.SpringDataAccountRepository;
 import com.votrebanque.infrastructure.persistence.repository.SpringDataBeneficiaryRepository;
@@ -51,8 +53,8 @@ class End2EndAddBeneficiaryTest {
     @Test
     void shouldReturnCreatedAndPersistBeneficiaryWhenRequestIsValid() throws Exception {
         
-        accountRepository.save(new AccountEntity(ownerNumber, "Alice", BigDecimal.valueOf(1000.0), null));
-        accountRepository.save(new AccountEntity(beneficiaryNumber, "Bob", BigDecimal.valueOf(500.0), null));
+        accountRepository.save(new AccountEntity(ownerNumber, "Alice", BigDecimal.valueOf(1000.0), AccountType.CURRENT, BigDecimal.ZERO, LocalDate.now(), null));
+        accountRepository.save(new AccountEntity(beneficiaryNumber, "Bob", BigDecimal.valueOf(500.0), AccountType.CURRENT, BigDecimal.ZERO, LocalDate.now(), null));
         accountRepository.flush();
 
         String jsonRequest = """
@@ -77,8 +79,8 @@ class End2EndAddBeneficiaryTest {
 
     @Test
     void shouldReturnBadRequestWhenOwnerNameDoesNotMatchAccountOwner() throws Exception {
-        accountRepository.save(new AccountEntity(ownerNumber, "Alice", BigDecimal.valueOf(1000.0), null));
-        accountRepository.save(new AccountEntity(beneficiaryNumber, "Bob", BigDecimal.valueOf(500.0), null));
+        accountRepository.save(new AccountEntity(ownerNumber, "Alice", BigDecimal.valueOf(1000.0), AccountType.CURRENT, BigDecimal.ZERO, LocalDate.now(), null));
+        accountRepository.save(new AccountEntity(beneficiaryNumber, "Bob", BigDecimal.valueOf(500.0), AccountType.CURRENT, BigDecimal.ZERO, LocalDate.now(), null));
         accountRepository.flush();
         String jsonRequest = """
                 {
@@ -98,8 +100,8 @@ class End2EndAddBeneficiaryTest {
 
     @Test
     void shouldReturnBadRequestWhenAccountNumberDoesNotMatch() throws Exception {
-        accountRepository.save(new AccountEntity(ownerNumber, "Alice", BigDecimal.valueOf(1000.0), null));
-        accountRepository.save(new AccountEntity(beneficiaryNumber, "Bob", BigDecimal.valueOf(500.0), null));
+        accountRepository.save(new AccountEntity(ownerNumber, "Alice", BigDecimal.valueOf(1000.0), AccountType.CURRENT, BigDecimal.ZERO, LocalDate.now(), null));
+        accountRepository.save(new AccountEntity(beneficiaryNumber, "Bob", BigDecimal.valueOf(500.0), AccountType.CURRENT, BigDecimal.ZERO, LocalDate.now(), null));
         accountRepository.flush();
 
         String jsonRequest = """

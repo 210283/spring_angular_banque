@@ -4,6 +4,7 @@ import com.votrebanque.application.port.inbound.AccountOpeningResult;
 import com.votrebanque.application.port.inbound.AddBeneficiaryUseCase;
 import com.votrebanque.application.port.inbound.GetAccountSummaryUseCase;
 import com.votrebanque.application.port.inbound.GetBeneficiariesUseCase;
+import com.votrebanque.application.port.inbound.GetLinkedSavingsAccountsUseCase;
 import com.votrebanque.application.port.inbound.GetMyAccountUseCase;
 import com.votrebanque.application.port.inbound.OpenAccountUseCase;
 import com.votrebanque.application.port.inbound.TransferUseCase;
@@ -40,6 +41,7 @@ public class AccountController {
     private final AddBeneficiaryUseCase addBeneficiaryUseCase;
     private final GetBeneficiariesUseCase getBeneficiariesUseCase;
     private final GetMyAccountUseCase getMyAccountUseCase;
+    private final GetLinkedSavingsAccountsUseCase getLinkedSavingsAccountsUseCase;
     
     @PostMapping("/transfer")
     public ResponseEntity<String> makeStranfer(@RequestBody TransferRequest request) {        
@@ -55,7 +57,9 @@ public class AccountController {
     public ResponseEntity<AccountCreationResponse> openAccount(@RequestBody OpenAccountRequest request) {   
         AccountOpeningResult result = openAccountUseCase.openAccount(
             request.owner(),
-            new Money(request.initialDeposit())
+            new Money(request.initialDeposit()),
+            request.accountType(),
+            request.linkedAccountNumber()
         );
 
         return ResponseEntity.status(HttpStatus.CREATED).body(AccountCreationResponse.from(result));
@@ -67,9 +71,11 @@ public class AccountController {
         var summary = getAccountSummaryUseCase.getAccountSummary(accountId);
 
         AccountSummaryResponse response = new AccountSummaryResponse(
-                summary.accountId().value(),
-                summary.owner(),
-                summary.balance().amount()
+            summary.accountId().value(),
+            summary.owner(),
+            summary.balance().amount(),
+            summary.accountType(),
+            summary.interestRate()
         );
 
         return ResponseEntity.ok(response);
@@ -85,8 +91,16 @@ public class AccountController {
                 request.ownerName()
         );
 
+        var targetAccountSummary = getAccountSummaryUseCase.getAccountSummary(new AccountId(request.accountNumber()));
+
         return ResponseEntity.status(HttpStatus.CREATED).body(
-                new BeneficiaryResponse(beneficiary.id(), beneficiary.label(), beneficiary.accountId().value(), request.ownerName())
+                new BeneficiaryResponse(
+                    beneficiary.id(),
+                    beneficiary.label(),
+                    beneficiary.accountId().value(),
+                    request.ownerName(),
+                    targetAccountSummary.accountType()
+                )
         );
     }
 
@@ -95,7 +109,7 @@ public class AccountController {
         var beneficiaries = getBeneficiariesUseCase.getBeneficiaries(new AccountId(accountNumber));
 
         List<BeneficiaryResponse> response = beneficiaries.stream()
-                .map(b -> new BeneficiaryResponse(b.id(), b.label(), b.accountId().value(), b.accountOwnerName()))
+                .map(b -> new BeneficiaryResponse(b.id(), b.label(), b.accountId().value(), b.accountOwnerName(), b.accountType()))
                 .toList();
 
         return ResponseEntity.ok(response);
@@ -108,8 +122,21 @@ public class AccountController {
         AccountSummaryResponse response = new AccountSummaryResponse(
             summary.accountId().value(),
             summary.owner(),
-            summary.balance().amount()
+            summary.balance().amount(),
+            summary.accountType(),
+            summary.interestRate()
         );
+
+        return ResponseEntity.ok(response);
+    }
+
+    @GetMapping("/me/savings-accounts")
+    public ResponseEntity<List<AccountSummaryResponse>> getMySavingsAccounts(java.security.Principal principal) {
+        var accounts = getLinkedSavingsAccountsUseCase.getLinkedSavingsAccounts(principal.getName());
+
+        List<AccountSummaryResponse> response = accounts.stream()
+            .map(s -> new AccountSummaryResponse(s.accountId().value(), s.owner(), s.balance().amount(), s.accountType(), s.interestRate()))
+            .toList();
 
         return ResponseEntity.ok(response);
     }

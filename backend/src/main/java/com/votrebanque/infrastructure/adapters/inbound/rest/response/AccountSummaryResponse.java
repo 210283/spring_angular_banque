@@ -1,10 +1,12 @@
 package com.votrebanque.infrastructure.adapters.inbound.rest.response;
 
+import com.votrebanque.domain.model.AccountType;
 import java.math.BigDecimal;
 
 public record AccountSummaryResponse(
-        String accountId,
-        String owner,
-        BigDecimal balance
-) {
-}
+    String accountId,
+    String owner,
+    BigDecimal balance,
+    AccountType accountType,
+    BigDecimal interestRate
+) {}

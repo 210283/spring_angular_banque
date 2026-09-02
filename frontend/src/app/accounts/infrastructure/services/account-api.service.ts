@@ -48,4 +48,8 @@ export class AccountApiService {
   getActivationEmailPreview(username: string): Observable<ActivationEmailPreview> {
     return this.http.get<ActivationEmailPreview>(`${environment.apiUrl}/api/dev/activation-email/${username}`);
   }
+
+  getLinkedSavingsAccounts(): Observable<AccountSummaryResponse[]> {
+    return this.http.get<AccountSummaryResponse[]>(`${this.API_URL}/me/savings-accounts`);
+  }
 }

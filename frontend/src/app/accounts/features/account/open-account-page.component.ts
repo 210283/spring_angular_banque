@@ -7,6 +7,7 @@ import { OpenAccountRequest, AccountCreationResponse, ActivationEmailPreview } f
 import { RouterLink } from '@angular/router';
 import { AuthService } from '../../../auth/auth.service';
 import { environment } from '../../../../environments/environment';
+import { ACCOUNT_TYPE_LABELS, AccountType } from '../../domain/entities/account.model';
 
 @Component({
   selector: 'app-page-open-account',
@@ -27,32 +28,17 @@ import { environment } from '../../../../environments/environment';
       @if(successResponse()){
         <section class="success-message">
           <p>Your account has been successfully created.</p>
-          <p>Your client ID is : <strong>{{ successResponse()?.username }}</strong></p>
+          <p>Account number : <strong>{{ successResponse()?.accountId }}</strong></p>
+          <p>Account type : <strong>{{ accountTypeLabel(successResponse()?.accountType) }}</strong></p>
 
-          <p>Activation link :
-            <a [href]="successResponse()?.activationUrl" target="_blank">{{ successResponse()?.activationUrl }}</a>
-          </p>
-
-          @if (!isProduction) {
-            @if(!emailPreview()){
-              <button (click)="loadActivationEmail()" [disabled]="emailLoading()">
-                {{ emailLoading() ? 'Loading...' : "View the activation email" }}
-              </button>
-            }
-
-            @if(emailError()){
-              <div class="summary-error">
-                {{ emailError() }}
-                <button (click)="loadActivationEmail()">Try again</button>
-              </div>
-            }
-
-            @if(emailPreview(); as preview){
-              <div class="email-preview">
-                <p><strong>Object :</strong> {{ preview.subject }}</p>
-                <div class="email-preview-body" [innerHTML]="sanitizedHtml()"></div>
-              </div>
-            }
+          @if (successResponse()?.accountType === 'CURRENT') {
+            <p>Your client ID is : <strong>{{ successResponse()?.username }}</strong></p>
+            <p>Activation link :
+              <a [href]="successResponse()?.activationUrl" target="_blank">{{ successResponse()?.activationUrl }}</a>
+            </p>
+            <!-- ... bloc email preview still same, only for  CURRENT ... -->
+          } @else {
+            <p>This savings account has no login of its own. It's active immediately and visible from your checking account summary.</p>
           }
 
           <div class="back-link">
@@ -136,5 +122,9 @@ export class OpenAccountPageComponent {
       .replace(/&/g, '&amp;')
       .replace(/</g, '&lt;')
       .replace(/>/g, '&gt;');
+  }
+
+  accountTypeLabel(type: AccountType | undefined): string {
+    return type ? ACCOUNT_TYPE_LABELS[type] : '';
   }
 }

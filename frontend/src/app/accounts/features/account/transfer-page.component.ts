@@ -1,7 +1,7 @@
 import { Component, OnInit, signal } from '@angular/core';
 import { AccountApiService } from '../../infrastructure/services/account-api.service';
 import { FormTransferComponent } from '../../ui/forms/form-transfer.component';
-import { BeneficiaryResponse, TransferRequest } from '../../domain/entities/account.model';
+import { BeneficiaryResponse, TransferRequest, ACCOUNT_TYPE_LABELS } from '../../domain/entities/account.model';
 import { Router } from '@angular/router';
 
 @Component({
@@ -31,7 +31,7 @@ import { Router } from '@angular/router';
                 <option value="">-- Please choose --</option>
                 @for (beneficiary of beneficiaries(); track beneficiary.beneficiaryAccountNumber) {
                   <option [value]="beneficiary.beneficiaryAccountNumber">
-                    {{ beneficiary.accountName }} ({{ beneficiary.beneficiaryAccountNumber }})
+                    {{ beneficiary.accountName }} — {{ ACCOUNT_TYPE_LABELS[beneficiary.accountType] }} ({{ beneficiary.beneficiaryAccountNumber }})
                   </option>
                 }
               </select>
@@ -58,6 +58,7 @@ export class TransferPageComponent implements OnInit {
   loading = signal(false);
   isSubmitting = signal(false);
   beneficiaries = signal<BeneficiaryResponse[]>([]);
+  readonly ACCOUNT_TYPE_LABELS = ACCOUNT_TYPE_LABELS;
 
   private sourceAccountNumber = '';
   selectedBeneficiary: BeneficiaryResponse | null = null;

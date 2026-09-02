@@ -1,6 +1,7 @@
 package com.votrebanque.web;
 
 import java.math.BigDecimal;
+import java.time.LocalDate;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -14,6 +15,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.votrebanque.TestcontainersConfiguration;
+import com.votrebanque.domain.model.AccountType;
 import com.votrebanque.infrastructure.persistence.entity.AccountEntity;
 import com.votrebanque.infrastructure.persistence.repository.SpringDataAccountRepository;
 
@@ -36,7 +38,7 @@ public class End2EndAccountSummaryTest {
 
     @BeforeEach
     void setup() {
-        AccountEntity account = new AccountEntity("FR761234567", "Charlie", BigDecimal.valueOf(1234.56), null);
+        AccountEntity account = new AccountEntity("FR761234567", "Charlie", BigDecimal.valueOf(1234.56), AccountType.CURRENT, BigDecimal.ZERO, LocalDate.now(), null);
         jpaRepository.save(account);
     }
 

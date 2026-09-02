@@ -2,13 +2,12 @@ package com.votrebanque.infrastructure.persistence.adapter;
 
 import com.votrebanque.application.port.outbound.AccountRepositoryPort;
 import com.votrebanque.domain.model.AccountId;
-import com.votrebanque.domain.model.Money;
 import com.votrebanque.domain.model.Account;
 import com.votrebanque.infrastructure.persistence.entity.AccountEntity;
 import com.votrebanque.infrastructure.persistence.repository.SpringDataAccountRepository;
-import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
+import java.util.List;
 import java.util.Optional;
 
 @Component
@@ -26,6 +25,9 @@ public class AccountPersistenceAdapter implements AccountRepositoryPort {
             .map(existing -> {
                 existing.setOwner(account.owner());
                 existing.setBalance(account.balance().amount());
+                existing.setAccountType(account.accountType());
+                existing.setInterestRate(account.interestRate());
+                existing.setLastInterestAccrualDate(account.lastInterestAccrualDate());
                 return existing;
             })
             .orElseGet(() -> AccountMapper.toEntity(account));
@@ -37,5 +39,12 @@ public class AccountPersistenceAdapter implements AccountRepositoryPort {
     public Optional<Account> findByNumber(AccountId accountId) {
         return repository.findById(accountId.value())
             .map(AccountMapper::toDomain);
+    }
+
+    @Override
+    public List<Account> findAll() {
+        return repository.findAll().stream()
+            .map(AccountMapper::toDomain)
+            .toList();
     }
 }

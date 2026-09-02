@@ -79,3 +79,116 @@
     border: 1px solid #f5b7b7;
   }
 }
+
+
+.sub-tabs {
+  display: flex;
+  gap: 1.5rem;
+  border-bottom: 2px solid #e5e7eb;
+  margin-bottom: 1.5rem;
+
+  button {
+    background: none;
+    border: none;
+    padding: 0.75rem 0.5rem;
+    font-size: 1rem;
+    font-weight: 600;
+    color: #6b7280;
+    cursor: pointer;
+    border-bottom: 3px solid transparent;
+    transition: all 0.2s ease;
+
+    &.active {
+      color: #6332d8;
+      border-bottom-color: #6332d8;
+    }
+
+    &:hover:not(.active) {
+      color: #1f2937;
+    }
+  }
+}
+
+
+// Onglets secondaires
+.sub-tabs {
+  display: flex;
+  gap: 1.5rem;
+  border-bottom: 2px solid #e5e7eb;
+  margin-bottom: 1.5rem;
+
+  button {
+    background: none;
+    border: none;
+    padding: 0.75rem 0.5rem;
+    font-size: 1rem;
+    font-weight: 600;
+    color: #6b7280;
+    cursor: pointer;
+    border-bottom: 3px solid transparent;
+    transition: all 0.2s ease;
+
+    &.active {
+      color: #6332d8;
+      border-bottom-color: #6332d8;
+    }
+
+    &:hover:not(.active) {
+      color: #1f2937;
+    }
+  }
+}
+
+// Style commun pour le compte principal et les comptes d'épargne
+.summary-card,
+.savings-account-card {
+  background-color: #ffffff;
+  border: 1px solid #e5e7eb;
+  border-radius: 12px;
+  padding: 1.5rem;
+  margin-bottom: 1rem;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -2px rgba(0, 0, 0, 0.05);
+  transition: box-shadow 0.2s ease, transform 0.2s ease;
+
+  &:hover {
+    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.08), 0 4px 6px -4px rgba(0, 0, 0, 0.04);
+  }
+
+  p {
+    margin: 0.5rem 0;
+    color: #374151;
+    font-size: 0.95rem;
+
+    strong {
+      color: #111827;
+    }
+  }
+}
+
+// Ajustement spécifique à l'onglet épargne (liste)
+.savings-accounts {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+// Alignement des boutons sur la carte principale
+.actions {
+  display: flex;
+  gap: 0.75rem;
+  margin-top: 1.25rem;
+
+  button {
+    padding: 0.5rem 1rem;
+    border-radius: 6px;
+    border: 1px solid #d1d5db;
+    background-color: #f9fafb;
+    cursor: pointer;
+    font-weight: 500;
+    transition: background-color 0.2s ease;
+
+    &:hover {
+      background-color: #f3f4f6;
+    }
+  }
+}

@@ -11,20 +11,25 @@ export interface BalanceAccount {
 }
 
 export interface OpenAccountRequest {
-  owner: string;
+  owner: string | null;
   initialDeposit: number;
+  accountType: AccountType;
+  linkedAccountNumber: string | null;
 }
 
 export interface AccountCreationResponse {
   accountId: string;
   username: string;
   activationUrl: string;
+  accountType: AccountType;
 }
 
 export interface AccountSummaryResponse {
   accountId: string;
   owner: string;
   balance: number;
+  accountType: AccountType;
+  interestRate: number;
 }
 
 export interface BeneficiaryRequest {
@@ -38,6 +43,7 @@ export interface BeneficiaryResponse {
   label: string;
   beneficiaryAccountNumber: string;
   accountName: string;
+  accountType: AccountType;
 }
 
 export interface ActivationEmailPreview {
@@ -45,3 +51,12 @@ export interface ActivationEmailPreview {
   text: string;
   html: string;
 }
+
+export type AccountType = 'CURRENT' | 'SAVINGS' | 'BOOKLET' | 'LDD';
+
+export const ACCOUNT_TYPE_LABELS: Record<AccountType, string> = {
+  CURRENT: 'Compte Courant',
+  SAVINGS: 'Compte Épargne',
+  BOOKLET: 'Livret A',
+  LDD: 'LDD'
+};

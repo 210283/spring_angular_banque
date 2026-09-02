@@ -21,11 +21,12 @@ public class GetAccountSummaryService implements GetAccountSummaryUseCase {
     public AccountSummary getAccountSummary(AccountId accountId) {
         Account bankAccount = bankAccountRepository.findByNumber(accountId)
                 .orElseThrow(() -> new AccountNotFoundException("Account not found."));
-
         return new AccountSummary(
                 bankAccount.accountNumber(),
                 bankAccount.owner(),
-                bankAccount.balance()
+                bankAccount.balance(),
+                bankAccount.accountType(),
+                bankAccount.interestRate()
         );
     }
 }

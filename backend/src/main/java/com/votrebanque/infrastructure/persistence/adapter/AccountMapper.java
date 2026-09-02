@@ -6,12 +6,14 @@ import com.votrebanque.domain.model.Money;
 import com.votrebanque.infrastructure.persistence.entity.AccountEntity;
 
 class AccountMapper {
-
     static Account toDomain(AccountEntity entity) {
         return Account.reconstruct(
             new AccountId(entity.getAccountNumber()),
             entity.getOwner(),
-            new Money(entity.getBalance())
+            new Money(entity.getBalance()),
+            entity.getAccountType(),
+            entity.getInterestRate(),
+            entity.getLastInterestAccrualDate()
         );
     }
 
@@ -20,7 +22,10 @@ class AccountMapper {
             account.accountNumber().value(),
             account.owner(),
             account.balance().amount(),
-            null // (null in creation, then incremented)
+            account.accountType(),
+            account.interestRate(),
+            account.lastInterestAccrualDate(),
+            null
         );
     }
 }

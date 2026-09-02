@@ -27,17 +27,16 @@ public class GetBeneficiariesService implements GetBeneficiariesUseCase {
     public List<BeneficiarySummary> getBeneficiaries(AccountId accountId) {
         return beneficiaryRepository.findAllByAccountNumber(accountId).stream()
             .map(beneficiary -> {
-                String ownerName = accountRepository.findByNumber(beneficiary.accountId())
-                    .map(account -> account.owner())
+                var targetAccount = accountRepository.findByNumber(beneficiary.accountId())
                     .orElseThrow(() -> new AccountNotFoundException(
                         "Beneficiary target account not found: " + beneficiary.accountId().value()
                     ));
-
                 return new BeneficiarySummary(
                     beneficiary.id(),
                     beneficiary.label(),
                     beneficiary.accountId(),
-                    ownerName
+                    targetAccount.owner(),
+                    targetAccount.accountType()
                 );
             })
             .toList();

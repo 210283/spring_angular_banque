@@ -17,7 +17,7 @@ public class GetActivationEmailPreviewService implements GetActivationEmailPrevi
     }
 
     @Override
-    public EmailPreviewResult getActivationEmailPreview(String username) {
+    public EmailPreviewResult getActivationEmail(String username) {
         String recipientEmail = username + EMAIL_DOMAIN;
 
         return emailPreviewPort.findLatestEmailTo(recipientEmail)

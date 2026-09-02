@@ -10,6 +10,7 @@ import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.transaction.annotation.Transactional;
 import com.votrebanque.TestcontainersConfiguration;
+import com.votrebanque.domain.model.AccountType;
 import com.votrebanque.infrastructure.persistence.entity.AccountEntity;
 import com.votrebanque.infrastructure.persistence.entity.BeneficiaryEntity;
 import com.votrebanque.infrastructure.persistence.repository.SpringDataAccountRepository;
@@ -22,6 +23,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 
 import java.math.BigDecimal;
+import java.time.LocalDate;
 import java.util.UUID;
 
 @SpringBootTest
@@ -57,8 +59,8 @@ class End2EndTransferTest {
 
   @Test
   void shouldReturnOkWhenTransferIsSuccessful() throws Exception {
-    AccountEntity alice = accountRepository.save(new AccountEntity("FR761234567", "Alice", BigDecimal.valueOf(1000.0), null));
-    accountRepository.save(new AccountEntity("FR769876567", "Bob", BigDecimal.valueOf(500.0), null));
+    AccountEntity alice = accountRepository.save(new AccountEntity("FR761234567", "Alice", BigDecimal.valueOf(1000.0), AccountType.CURRENT, BigDecimal.ZERO, LocalDate.now(), null));
+    accountRepository.save(new AccountEntity("FR769876567", "Bob", BigDecimal.valueOf(500.0), AccountType.CURRENT, BigDecimal.ZERO, LocalDate.now(), null));
 
     createBeneficiaryRelation("Bob the beneficiary", "FR769876567", alice);
 
@@ -79,8 +81,8 @@ class End2EndTransferTest {
 
   @Test
   void shouldReturnBadRequestWhenTransferFailsDueToInsufficientFunds() throws Exception {
-    AccountEntity alice = accountRepository.save(new AccountEntity("FR761234567", "Alice", BigDecimal.valueOf(50.0), null));
-    accountRepository.save(new AccountEntity("FR769876567", "Bob", BigDecimal.valueOf(500.0), null));
+    AccountEntity alice = accountRepository.save(new AccountEntity("FR761234567", "Alice", BigDecimal.valueOf(50.0), AccountType.CURRENT, BigDecimal.ZERO, LocalDate.now(), null));
+    accountRepository.save(new AccountEntity("FR769876567", "Bob", BigDecimal.valueOf(500.0), AccountType.CURRENT, BigDecimal.ZERO, LocalDate.now(), null));
 
     createBeneficiaryRelation("Bob the beneficiary", "FR769876567", alice);
     
@@ -106,8 +108,8 @@ class End2EndTransferTest {
 
   @Test
   void shouldReturnBadRequestWhenTransferFailsDueToNotBeneficiary() throws Exception {
-    accountRepository.save(new AccountEntity("FR761234567", "Alice", BigDecimal.valueOf(1000.0), null));
-    accountRepository.save(new AccountEntity("FR769876567", "Bob", BigDecimal.valueOf(500.0), null));
+    accountRepository.save(new AccountEntity("FR761234567", "Alice", BigDecimal.valueOf(1000.0), AccountType.CURRENT, BigDecimal.ZERO, LocalDate.now(), null));
+    accountRepository.save(new AccountEntity("FR769876567", "Bob", BigDecimal.valueOf(500.0), AccountType.CURRENT, BigDecimal.ZERO, LocalDate.now(), null));
 
     String jsonRequest = """
             {

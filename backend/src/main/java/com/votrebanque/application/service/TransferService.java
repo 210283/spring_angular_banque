@@ -5,8 +5,8 @@ import com.votrebanque.application.port.outbound.AccountRepositoryPort;
 import com.votrebanque.application.port.outbound.BeneficiaryRepositoryPort;
 import com.votrebanque.domain.model.AccountId;
 import com.votrebanque.domain.model.Account;
-//import com.votrebanque.domain.model.Beneficiary;
 import com.votrebanque.domain.model.Money;
+import com.votrebanque.domain.model.TransactionCategory;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -17,6 +17,7 @@ public class TransferService implements TransferUseCase {
 
     private final AccountRepositoryPort bankAccountRepository;
     private final BeneficiaryRepositoryPort beneficiaryRepository;
+    private final TransactionRecorder transactionRecorder;
 
     @Override
     @Transactional
@@ -34,6 +35,14 @@ public class TransferService implements TransferUseCase {
 
         bankAccountRepository.save(compteSource);
         bankAccountRepository.save(compteDestination);
+
+        transactionRecorder.recordTransfer(
+            compteSource.accountNumber(), compteSource.balance(),
+            compteDestination.accountNumber(), compteDestination.balance(),
+            amount, compteSource.owner(), compteDestination.owner(),
+            TransactionCategory.TRANSFER,
+            "Transfer to " + compteDestination.owner()
+        );
     }
 
     private AccountId resolveDestinationAccountId(AccountId sourceAccountId, String destinationIdentifier) {

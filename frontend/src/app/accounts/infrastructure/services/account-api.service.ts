@@ -9,7 +9,10 @@ import {
   AccountSummaryResponse,
   BeneficiaryRequest,
   BeneficiaryResponse,
-  ActivationEmailPreview
+  ActivationEmailPreview,
+  TransactionResponse,
+  CreateDirectDebitRequest,
+  DirectDebitResponse
 } from '../../domain/entities/account.model';
 import { environment } from '../../../../environments/environment';
 
@@ -51,5 +54,21 @@ export class AccountApiService {
 
   getLinkedSavingsAccounts(): Observable<AccountSummaryResponse[]> {
     return this.http.get<AccountSummaryResponse[]>(`${this.API_URL}/me/savings-accounts`);
+  }
+
+  getTransactionHistory(accountNumber: string): Observable<TransactionResponse[]> {
+    return this.http.get<TransactionResponse[]>(`${this.API_URL}/${accountNumber}/transactions`);
+  }
+
+  createDirectDebit(accountNumber: string, request: CreateDirectDebitRequest): Observable<DirectDebitResponse> {
+    return this.http.post<DirectDebitResponse>(`${this.API_URL}/${accountNumber}/direct-debits`, request);
+  }
+
+  getDirectDebits(accountNumber: string): Observable<DirectDebitResponse[]> {
+    return this.http.get<DirectDebitResponse[]>(`${this.API_URL}/${accountNumber}/direct-debits`);
+  }
+
+  cancelDirectDebit(accountNumber: string, directDebitId: string): Observable<void> {
+    return this.http.delete<void>(`${this.API_URL}/${accountNumber}/direct-debits/${directDebitId}`);
   }
 }

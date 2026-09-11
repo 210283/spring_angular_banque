@@ -60,3 +60,38 @@ export const ACCOUNT_TYPE_LABELS: Record<AccountType, string> = {
   BOOKLET: 'Livret A',
   LDD: 'LDD'
 };
+
+
+export type TransactionType = 'DEBIT' | 'CREDIT';
+export type TransactionCategory = 'OPENING_DEPOSIT' | 'TRANSFER' | 'DIRECT_DEBIT' | 'INTEREST';
+
+export interface TransactionResponse {
+  id: string;
+  type: TransactionType;
+  category: TransactionCategory;
+  amount: number;
+  balanceAfter: number;
+  counterpartyAccountNumber: string | null;
+  counterpartyName: string | null;
+  label: string;
+  occurredAt: string;
+}
+
+export type DirectDebitFrequency = 'WEEKLY' | 'MONTHLY';
+
+export interface CreateDirectDebitRequest {
+  beneficiaryAccountNumber: string;
+  amount: number;
+  frequency: DirectDebitFrequency;
+  startDate: string; // yyyy-MM-dd
+}
+
+export interface DirectDebitResponse {
+  id: string;
+  beneficiaryAccountNumber: string;
+  beneficiaryLabel: string | null;
+  amount: number;
+  frequency: DirectDebitFrequency;
+  nextExecutionDate: string;
+  active: boolean;
+}

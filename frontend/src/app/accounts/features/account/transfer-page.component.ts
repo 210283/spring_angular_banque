@@ -23,6 +23,7 @@ import { Router } from '@angular/router';
       @if (!loading()){
         <ng-container>
           <button class="btn-secondary" (click)="goToAddBeneficiary()" [disabled]="isSubmitting()">Add beneficiary</button>
+          <button (click)="goToDirectDebits()">Manage direct debits</button>
 
           @if (!selectedBeneficiary) {
             <div class="beneficiary-selection">
@@ -137,5 +138,9 @@ export class TransferPageComponent implements OnInit {
 
   goToAddBeneficiary() {
     this.router.navigate(['accounts', 'add-beneficiary']);
+  }
+
+  goToDirectDebits() {
+    this.router.navigate(['accounts', 'direct-debits']);
   }
 }

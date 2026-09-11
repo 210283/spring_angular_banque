@@ -18,6 +18,7 @@ public class OpenAccountService implements OpenAccountUseCase {
     private final AccountRepositoryPort bankAccountRepository;
     private final RegisterUserUseCase registerUserUseCase;
     private final AddBeneficiaryUseCase addBeneficiaryUseCase;
+    private final TransactionRecorder transactionRecorder;
 
     @Override
     @Transactional
@@ -56,6 +57,7 @@ public class OpenAccountService implements OpenAccountUseCase {
             : Account.open(newAccountId, resolvedOwner, initialDeposit);
 
         bankAccountRepository.save(newAccount);
+        transactionRecorder.recordDeposit(newAccountId, initialDeposit, newAccount.balance());
 
         // A savings account does not have its own login credentials: no credentials, no activation, and no email address.
         // It is immediately active, and only accessible via the linked checking account (beneficiary relationship).

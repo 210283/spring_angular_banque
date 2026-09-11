@@ -6,6 +6,7 @@ import com.votrebanque.application.port.inbound.GetAccountSummaryUseCase;
 import com.votrebanque.application.port.inbound.GetBeneficiariesUseCase;
 import com.votrebanque.application.port.inbound.GetLinkedSavingsAccountsUseCase;
 import com.votrebanque.application.port.inbound.GetMyAccountUseCase;
+import com.votrebanque.application.port.inbound.GetTransactionHistoryUseCase;
 import com.votrebanque.application.port.inbound.OpenAccountUseCase;
 import com.votrebanque.application.port.inbound.TransferUseCase;
 import com.votrebanque.domain.model.AccountId;
@@ -16,6 +17,7 @@ import com.votrebanque.infrastructure.adapters.inbound.rest.request.TransferRequ
 import com.votrebanque.infrastructure.adapters.inbound.rest.response.AccountCreationResponse;
 import com.votrebanque.infrastructure.adapters.inbound.rest.response.AccountSummaryResponse;
 import com.votrebanque.infrastructure.adapters.inbound.rest.response.BeneficiaryResponse;
+import com.votrebanque.infrastructure.adapters.inbound.rest.response.TransactionResponse;
 
 import lombok.RequiredArgsConstructor;
 
@@ -42,6 +44,7 @@ public class AccountController {
     private final GetBeneficiariesUseCase getBeneficiariesUseCase;
     private final GetMyAccountUseCase getMyAccountUseCase;
     private final GetLinkedSavingsAccountsUseCase getLinkedSavingsAccountsUseCase;
+    private final GetTransactionHistoryUseCase getTransactionHistoryUseCase;
     
     @PostMapping("/transfer")
     public ResponseEntity<String> makeStranfer(@RequestBody TransferRequest request) {        
@@ -136,6 +139,18 @@ public class AccountController {
 
         List<AccountSummaryResponse> response = accounts.stream()
             .map(s -> new AccountSummaryResponse(s.accountId().value(), s.owner(), s.balance().amount(), s.accountType(), s.interestRate()))
+            .toList();
+
+        return ResponseEntity.ok(response);
+    }
+
+    @GetMapping("/{accountNumber}/transactions")
+    public ResponseEntity<List<TransactionResponse>> getTransactionHistory(@PathVariable String accountNumber) {
+        var history = getTransactionHistoryUseCase.getTransactionHistory(new AccountId(accountNumber));
+
+        List<TransactionResponse> response = history.stream()
+            .map(t -> new TransactionResponse(t.id(), t.type(), t.category(), t.amount(), t.balanceAfter(),
+                t.counterpartyAccountNumber(), t.counterpartyName(), t.label(), t.occurredAt()))
             .toList();
 
         return ResponseEntity.ok(response);

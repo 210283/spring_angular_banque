@@ -91,7 +91,7 @@ public class Account extends AbstractEntity<AccountId> {
 
     // Actual interest accrual: simple interest for the period, applied to the current balance.
     // Called regularly (nightly job), the compounding occurs naturally from one call to the next.
-    public void accrueInterest(LocalDate asOf) {
+    /*public void accrueInterest(LocalDate asOf) {
         if (!accountType.isSavings() || interestRate.compareTo(BigDecimal.ZERO) == 0) {
             this.lastInterestAccrualDate = asOf;
             return;
@@ -110,6 +110,28 @@ public class Account extends AbstractEntity<AccountId> {
             this.balance = this.balance.more(interest);
         }
         this.lastInterestAccrualDate = asOf;
+    }*/
+
+    public Money accrueInterest(LocalDate asOf) {
+        if (!accountType.isSavings() || interestRate.compareTo(BigDecimal.ZERO) == 0) {
+            this.lastInterestAccrualDate = asOf;
+            return Money.ZERO;
+        }
+
+        long daysElapsed = ChronoUnit.DAYS.between(lastInterestAccrualDate, asOf);
+        if (daysElapsed <= 0) {
+            return Money.ZERO;
+        }
+
+        BigDecimal dailyRate = interestRate.divide(BigDecimal.valueOf(365), 10, RoundingMode.HALF_EVEN);
+        BigDecimal periodRate = dailyRate.multiply(BigDecimal.valueOf(daysElapsed));
+        Money interest = new Money(this.balance.amount().multiply(periodRate));
+
+        if (!interest.isNegativeOrZero()) {
+            this.balance = this.balance.more(interest);
+        }
+        this.lastInterestAccrualDate = asOf;
+        return interest;
     }
 
     public AccountId accountNumber() { return accountNumber; }

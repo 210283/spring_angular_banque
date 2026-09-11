@@ -11,17 +11,16 @@ import { AuthService } from '../../../auth/auth.service';
   imports: [CommonModule],
   template: `
     <div class="summary-container">
-      <!-- Barre d'onglets secondaire -->
       <nav class="sub-tabs">
         <button
           [class.active]="activeTab() === 'accounts'"
           (click)="activeTab.set('accounts')">
-          Mes comptes ({{ summary() ? 1 : 0 }})
+          My accounts ({{ summary() ? 1 : 0 }})
         </button>
         <button
           [class.active]="activeTab() === 'savings'"
           (click)="activeTab.set('savings')">
-          Mon épargne ({{ savingsAccounts().length }})
+          My savings ({{ savingsAccounts().length }})
         </button>
       </nav>
 
@@ -46,11 +45,12 @@ import { AuthService } from '../../../auth/auth.service';
             }
             <div class="actions">
               <button (click)="goToTransfer()">Go to transfer</button>
+              <button (click)="goToTransactionHistory()">Transaction history</button>
               <button (click)="logout()">Logout</button>
             </div>
           </section>
         } @else {
-          <p class="empty-message">Aucun compte principal disponible.</p>
+          <p class="empty-message">No primary account available.</p>
         }
       }
 
@@ -65,7 +65,7 @@ import { AuthService } from '../../../auth/auth.service';
             }
           </section>
         } @else {
-          <p class="empty-message">Aucun compte d'épargne rattaché.</p>
+          <p class="empty-message">No linked savings accounts available.</p>
         }
       }
     </div>
@@ -126,6 +126,10 @@ export class SummaryPageComponent implements OnInit {
 
   goToTransfer() {
     this.router.navigate(['accounts', 'transfer']);
+  }
+
+  goToTransactionHistory() {
+    this.router.navigate(['accounts', 'transactions']);
   }
 
   logout() {

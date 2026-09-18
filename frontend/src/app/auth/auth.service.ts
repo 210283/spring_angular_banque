@@ -1,19 +1,15 @@
 import { Injectable, computed, signal, inject } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
 import { Router } from '@angular/router';
 import { Observable, tap } from 'rxjs';
-import { environment } from '../../environments/environment';
-
-interface LoginResponse {
-  token: string;
-}
+import { AUTH_GATEWAY } from './infrastructure/auth-gateway.token';
+import { LoginResponse } from './domain/ports/auth-gateway.port';
 
 @Injectable({
   providedIn: 'root'
 })
 export class AuthService {
   private readonly TOKEN_KEY = 'votrebanque.token';
-  private http = inject(HttpClient);
+  private authGateway = inject(AUTH_GATEWAY);
 
   private token = signal<string | null>(null);
   private username = signal<string | null>(null);
@@ -35,7 +31,7 @@ export class AuthService {
   }
 
   login(username: string, password: string): Observable<LoginResponse> {
-    return this.http.post<LoginResponse>(`${environment.apiUrl}/api/auth/login`, { username, password }).pipe(
+    return this.authGateway.login(username, password).pipe(
       tap(response => {
         localStorage.setItem(this.TOKEN_KEY, response.token);
         this.token.set(response.token);

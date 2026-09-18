@@ -1,7 +1,8 @@
 import { CommonModule } from '@angular/common';
 import { Component, inject, OnInit, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { AccountApiService } from '../../infrastructure/services/account-api.service';
+import { AccountUseCases } from '../../application/account.use-cases';
+import { ACCOUNT_USE_CASES } from '../../../app.config';
 import { BeneficiaryResponse, DirectDebitFrequency, DirectDebitResponse } from '../../domain/entities/account.model';
 import { Router } from '@angular/router';
 import { ACCOUNT_TYPE_LABELS } from '../../domain/entities/account.model';
@@ -79,7 +80,7 @@ import { ACCOUNT_TYPE_LABELS } from '../../domain/entities/account.model';
   styleUrl: '../scss/direct-debits-page.component.scss'
 })
 export class DirectDebitsPageComponent implements OnInit {
-  private accountApiService = inject(AccountApiService);
+  private accountApiService = inject(ACCOUNT_USE_CASES);
   private router = inject(Router);
   readonly ACCOUNT_TYPE_LABELS = ACCOUNT_TYPE_LABELS;
 

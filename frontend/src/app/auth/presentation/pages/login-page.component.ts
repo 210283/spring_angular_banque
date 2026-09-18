@@ -2,7 +2,7 @@ import { Component, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ReactiveFormsModule, FormBuilder, Validators } from '@angular/forms';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
-import { AuthService } from '../../../auth/auth.service';
+import { AuthService } from '../../auth.service';
 
 @Component({
   selector: 'app-login-page',
@@ -39,7 +39,7 @@ import { AuthService } from '../../../auth/auth.service';
       </p>
     </div>
   `,
-  styleUrl: '../scss/login-page.component.scss'
+  styleUrl: '../../../accounts/features/scss/login-page.component.scss'
 })
 export class LoginPageComponent {
   private fb = inject(FormBuilder);
@@ -56,13 +56,10 @@ export class LoginPageComponent {
   errorMessage: string | null = null;
 
   onSubmit(): void {
-    if (this.form.invalid) {
-      return;
-    }
+    if (this.form.invalid) return;
 
     this.isSubmitting = true;
     this.errorMessage = null;
-
     const { username, password } = this.form.value;
 
     this.authService.login(username!, password!).subscribe({
@@ -77,7 +74,7 @@ export class LoginPageComponent {
           this.router.navigate(['/accounts', 'summary']);
         }
       },
-      error: (err) => {
+      error: (err: any) => {
         this.isSubmitting = false;
         this.errorMessage = err.error?.detail || 'Incorrect username or password.';
       }

@@ -1,6 +1,7 @@
 import { CommonModule } from '@angular/common';
 import { Component, inject, OnInit, signal } from '@angular/core';
-import { AccountApiService } from '../../infrastructure/services/account-api.service';
+import { AccountUseCases } from '../../application/account.use-cases';
+import { ACCOUNT_USE_CASES } from '../../../app.config';
 import { TransactionResponse } from '../../domain/entities/account.model';
 import { Router } from '@angular/router';
 
@@ -54,7 +55,7 @@ import { Router } from '@angular/router';
   styleUrl: '../scss/transaction-history-page.component.scss'
 })
 export class TransactionHistoryPageComponent implements OnInit {
-  private accountApiService = inject(AccountApiService);
+  private accountApiService = inject(ACCOUNT_USE_CASES);
   private router = inject(Router);
 
   transactions = signal<TransactionResponse[]>([]);

@@ -1,7 +1,8 @@
 import { CommonModule } from '@angular/common';
 import { Component, inject, OnInit, signal } from '@angular/core';
 import { Router } from '@angular/router';
-import { AccountApiService } from '../../infrastructure/services/account-api.service';
+import { AccountUseCases } from '../../application/account.use-cases';
+import { ACCOUNT_USE_CASES } from '../../../app.config';
 import { AccountSummaryResponse, ACCOUNT_TYPE_LABELS } from '../../domain/entities/account.model';
 import { AuthService } from '../../../auth/auth.service';
 
@@ -82,7 +83,7 @@ export class SummaryPageComponent implements OnInit {
   readonly ACCOUNT_TYPE_LABELS = ACCOUNT_TYPE_LABELS;
 
   private router = inject(Router);
-  private accountApiService = inject(AccountApiService);
+  private accountApiService = inject(ACCOUNT_USE_CASES);
   private authService = inject(AuthService);
 
   ngOnInit() {

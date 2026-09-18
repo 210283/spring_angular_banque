@@ -1,5 +1,6 @@
 import { Component, inject, signal, OnInit } from '@angular/core';
-import { AccountApiService } from '../../infrastructure/services/account-api.service';
+import { AccountUseCases } from '../../application/account.use-cases';
+import { ACCOUNT_USE_CASES } from '../../../app.config';
 import { FormAddBeneficiaryComponent } from '../../ui/forms/form-add-beneficiary.component';
 import { Router } from '@angular/router';
 import { BeneficiaryRequest } from '../../domain/entities/account.model';
@@ -28,7 +29,7 @@ import { BeneficiaryRequest } from '../../domain/entities/account.model';
   styleUrl: '../scss/add-beneficiary-page.component.scss'
 })
 export class AddBeneficiaryPageComponent implements OnInit {
-  private apiService = inject(AccountApiService);
+  private apiService = inject(ACCOUNT_USE_CASES);
   private router = inject(Router);
 
   errorMessage = signal<string | null>(null);

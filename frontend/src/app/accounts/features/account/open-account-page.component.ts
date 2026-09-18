@@ -2,7 +2,8 @@ import { CommonModule } from '@angular/common';
 import { Component, inject, signal } from '@angular/core';
 import { DomSanitizer } from '@angular/platform-browser';
 import { FormOpenAccountComponent } from '../../ui/forms/form-open-account.component';
-import { AccountApiService } from '../../infrastructure/services/account-api.service';
+import { AccountUseCases } from '../../application/account.use-cases';
+import { ACCOUNT_USE_CASES } from '../../../app.config';
 import { OpenAccountRequest, AccountCreationResponse, ActivationEmailPreview } from '../../domain/entities/account.model';
 import { RouterLink } from '@angular/router';
 import { AuthService } from '../../../auth/auth.service';
@@ -51,7 +52,7 @@ import { ACCOUNT_TYPE_LABELS, AccountType } from '../../domain/entities/account.
   styleUrls: ['../scss/page-open-account.component.scss']
 })
 export class OpenAccountPageComponent {
-  private accountApiService = inject(AccountApiService);
+  private accountApiService = inject(ACCOUNT_USE_CASES);
   private authService = inject(AuthService);
   private sanitizer = inject(DomSanitizer);
   isProduction = environment.production;

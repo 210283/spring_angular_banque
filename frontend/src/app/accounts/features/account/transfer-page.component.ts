@@ -1,5 +1,5 @@
-import { Component, OnInit, signal } from '@angular/core';
-import { AccountApiService } from '../../infrastructure/services/account-api.service';
+import { Component, OnInit, inject, signal } from '@angular/core';
+import { ACCOUNT_USE_CASES } from '../../../app.config';
 import { FormTransferComponent } from '../../ui/forms/form-transfer.component';
 import { BeneficiaryResponse, TransferRequest, ACCOUNT_TYPE_LABELS } from '../../domain/entities/account.model';
 import { Router } from '@angular/router';
@@ -64,15 +64,13 @@ export class TransferPageComponent implements OnInit {
   private sourceAccountNumber = '';
   selectedBeneficiary: BeneficiaryResponse | null = null;
 
-  constructor(
-    private router: Router,
-    private accountApiService: AccountApiService
-  ) {}
+  private router = inject(Router);
+  private accountUseCases = inject(ACCOUNT_USE_CASES);
 
   ngOnInit(): void {
     this.loading.set(true);
 
-    this.accountApiService.getMyAccount().subscribe({
+    this.accountUseCases.getMyAccount().subscribe({
       next: (summary) => {
         this.sourceAccountNumber = summary.accountId;
         this.loading.set(false);
@@ -103,7 +101,7 @@ export class TransferPageComponent implements OnInit {
       amount: amountToTransfer
     };
 
-    this.accountApiService.transfer(payload).subscribe({
+    this.accountUseCases.transfer(payload).subscribe({
       next: (reponseMessage) => {
         alert(reponseMessage);
         this.isSubmitting.set(false);
@@ -126,7 +124,7 @@ export class TransferPageComponent implements OnInit {
   }
 
   getBeneficiaries(accountNumber: string) {
-    this.accountApiService.getBeneficiaries(accountNumber).subscribe({
+    this.accountUseCases.getBeneficiaries(accountNumber).subscribe({
       next: (beneficiaries) => {
         this.beneficiaries.set(beneficiaries);
       },

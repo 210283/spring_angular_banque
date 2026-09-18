@@ -1,7 +1,7 @@
 package com.votrebanque.service;
 
-import com.votrebanque.application.service.TransferService;
 import com.votrebanque.TestcontainersConfiguration;
+import com.votrebanque.application.port.inbound.TransferUseCase;
 import com.votrebanque.application.port.outbound.AccountRepositoryPort;
 import com.votrebanque.application.port.outbound.BeneficiaryRepositoryPort;
 import com.votrebanque.domain.exception.InsufficientFundsException;
@@ -33,7 +33,7 @@ class TransferServiceTest {
     private BeneficiaryRepositoryPort beneficiaryRepository;
 
     @Autowired
-    private TransferService transferService;
+    private TransferUseCase transferService;
 
     final AccountId sourceId = new AccountId("FR761234567");
     final AccountId destinationId = new AccountId("FR769876589");

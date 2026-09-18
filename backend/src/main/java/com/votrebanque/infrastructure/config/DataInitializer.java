@@ -1,4 +1,4 @@
-package com.votrebanque.infrastructure.security.config;
+package com.votrebanque.infrastructure.config;
 
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.context.annotation.Bean;

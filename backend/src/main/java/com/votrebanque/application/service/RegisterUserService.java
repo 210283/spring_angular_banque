@@ -6,20 +6,16 @@ import java.util.Base64;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.stereotype.Service;
-
 import com.votrebanque.application.port.inbound.RegisterUserUseCase;
 import com.votrebanque.application.port.outbound.ActivationTokenRepositoryPort;
 import com.votrebanque.application.port.outbound.CredentialsRepositoryPort;
 import com.votrebanque.application.port.outbound.EmailSenderPort;
+import com.votrebanque.application.port.outbound.PasswordEncoderPort;
 import com.votrebanque.domain.model.AccountId;
 import com.votrebanque.domain.model.ActivationToken;
 import com.votrebanque.domain.model.Credentials;
 import com.votrebanque.domain.model.UsernameGenerator;
 
-@Service
 public class RegisterUserService implements RegisterUserUseCase {
 
     private static final int MAX_GENERATION_ATTEMPTS = 10;
@@ -28,20 +24,20 @@ public class RegisterUserService implements RegisterUserUseCase {
 
     private final CredentialsRepositoryPort credentialsRepository;
     private final ActivationTokenRepositoryPort tokenRepository;
-    private final PasswordEncoder passwordEncoder;
+    private final PasswordEncoderPort passwordEncoder;
     private final EmailSenderPort emailSender;
-
-    @Value("${app.frontend.base-url}")
-    private String frontendBaseUrl;
+    private final String frontendBaseUrl;
     
     public RegisterUserService(CredentialsRepositoryPort credentialsRepository,
                                 ActivationTokenRepositoryPort tokenRepository,
-                                PasswordEncoder passwordEncoder,
-                                EmailSenderPort emailSender) {
+                                PasswordEncoderPort passwordEncoder,
+                                EmailSenderPort emailSender,
+                                String frontendBaseUrl) {
         this.credentialsRepository = credentialsRepository;
         this.tokenRepository = tokenRepository;
         this.passwordEncoder = passwordEncoder;
         this.emailSender = emailSender;
+        this.frontendBaseUrl = frontendBaseUrl;
     }
 
     @Override

@@ -8,10 +8,6 @@ import com.votrebanque.application.port.outbound.AccountRepositoryPort;
 import com.votrebanque.domain.exception.AccountNotFoundException;
 import com.votrebanque.domain.model.*;
 import lombok.RequiredArgsConstructor;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-
-@Service
 @RequiredArgsConstructor
 public class OpenAccountService implements OpenAccountUseCase {
 
@@ -21,7 +17,6 @@ public class OpenAccountService implements OpenAccountUseCase {
     private final TransactionRecorder transactionRecorder;
 
     @Override
-    @Transactional
     public AccountOpeningResult openAccount(String owner, Money initialDeposit, AccountType accountType, String linkedAccountNumber) {
 
         String resolvedOwner;

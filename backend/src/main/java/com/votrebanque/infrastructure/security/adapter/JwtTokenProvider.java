@@ -1,16 +1,20 @@
-package com.votrebanque.infrastructure.security.config;
+package com.votrebanque.infrastructure.security.adapter;
 
-import io.jsonwebtoken.Jwts;
-import io.jsonwebtoken.security.Keys;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.stereotype.Component;
-
-import javax.crypto.SecretKey;
 import java.time.Instant;
 import java.util.Date;
 
+import javax.crypto.SecretKey;
+
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Component;
+
+import com.votrebanque.application.port.outbound.TokenProviderPort;
+
+import io.jsonwebtoken.Jwts;
+import io.jsonwebtoken.security.Keys;
+
 @Component
-public class JwtTokenProvider {
+public class JwtTokenProvider implements TokenProviderPort {
 
     private final SecretKey signingKey;
     private final long validityMillis;
@@ -23,6 +27,7 @@ public class JwtTokenProvider {
         this.validityMillis = validityMillis;
     }
 
+    @Override
     public String generateToken(String username, String role) {
         Instant now = Instant.now();
         Instant expiry = now.plusMillis(validityMillis);
@@ -36,6 +41,7 @@ public class JwtTokenProvider {
             .compact();
     }
 
+    @Override
     public String extractUsername(String token) {
         return Jwts.parser()
             .verifyWith(signingKey)
@@ -45,6 +51,7 @@ public class JwtTokenProvider {
             .getSubject();
     }
 
+    @Override
     public String extractRole(String token) {
         return Jwts.parser()
             .verifyWith(signingKey)
@@ -54,6 +61,7 @@ public class JwtTokenProvider {
             .get("role", String.class);
     }
 
+    @Override
     public boolean isTokenValid(String token) {
         try {
             Jwts.parser().verifyWith(signingKey).build().parseSignedClaims(token);

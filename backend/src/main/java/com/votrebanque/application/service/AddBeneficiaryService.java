@@ -7,9 +7,7 @@ import com.votrebanque.domain.exception.AccountNotFoundException;
 import com.votrebanque.domain.model.AccountId;
 import com.votrebanque.domain.model.Account;
 import com.votrebanque.domain.model.Beneficiary;
-import org.springframework.stereotype.Service;
 
-@Service
 public class AddBeneficiaryService implements AddBeneficiaryUseCase {
 
     private final AccountRepositoryPort bankAccountRepository;

@@ -1,23 +1,21 @@
 package com.votrebanque.infrastructure.adapters.inbound.rest.controller;
 
-import com.votrebanque.domain.exception.InsufficientFundsException;
-import com.votrebanque.domain.exception.InvalidCredentialsException;
-import com.votrebanque.application.service.RegisterUserService;
-import com.votrebanque.domain.exception.AccountNotFoundException;
-import com.votrebanque.domain.exception.EmailNotFoundException;
-
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ProblemDetail;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import com.votrebanque.domain.exception.AccountNotFoundException;
+import com.votrebanque.domain.exception.EmailNotFoundException;
+import com.votrebanque.domain.exception.InsufficientFundsException;
+import com.votrebanque.domain.exception.InvalidCredentialsException;
 
 @RestControllerAdvice
 public class GlobalExceptionHandler {
 
-    private static final Logger log = LoggerFactory.getLogger(RegisterUserService.class);
+    private static final Logger log = LoggerFactory.getLogger(GlobalExceptionHandler.class);
 
     // If the domain says the account does not exist
     @ExceptionHandler(AccountNotFoundException.class)

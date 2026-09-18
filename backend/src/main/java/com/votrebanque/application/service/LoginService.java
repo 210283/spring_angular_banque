@@ -1,55 +1,41 @@
 package com.votrebanque.application.service;
 
+import java.util.Optional;
+
+
 import com.votrebanque.application.port.inbound.LoginUseCase;
 import com.votrebanque.application.port.outbound.CredentialsRepositoryPort;
+import com.votrebanque.application.port.outbound.PasswordEncoderPort;
+import com.votrebanque.application.port.outbound.StaffAuthenticationPort;
+import com.votrebanque.application.port.outbound.TokenProviderPort;
 import com.votrebanque.domain.exception.InvalidCredentialsException;
 import com.votrebanque.domain.model.Credentials;
-import com.votrebanque.infrastructure.security.config.JwtTokenProvider;
 
-import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.security.core.userdetails.UserDetailsService;
-import org.springframework.security.core.userdetails.UsernameNotFoundException;
-import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.stereotype.Service;
-
-@Service
 public class LoginService implements LoginUseCase {
 
     private final CredentialsRepositoryPort credentialsRepository;
-    private final UserDetailsService userDetailsService;
-    private final PasswordEncoder passwordEncoder;
-    private final JwtTokenProvider jwtTokenProvider;
+    private final StaffAuthenticationPort staffAuthenticationPort;
+    private final PasswordEncoderPort passwordEncoder;
+    private final TokenProviderPort tokenProvider;
 
     public LoginService(CredentialsRepositoryPort credentialsRepository,
-                         UserDetailsService userDetailsService,  
-                         PasswordEncoder passwordEncoder,
-                         JwtTokenProvider jwtTokenProvider) {
+                        StaffAuthenticationPort staffAuthenticationPort,  
+                        PasswordEncoderPort passwordEncoder,
+                        TokenProviderPort tokenProvider) {
         this.credentialsRepository = credentialsRepository;
-        this.userDetailsService = userDetailsService;
+        this.staffAuthenticationPort = staffAuthenticationPort;
         this.passwordEncoder = passwordEncoder;
-        this.jwtTokenProvider = jwtTokenProvider;
+        this.tokenProvider = tokenProvider;
     }
 
     @Override
     public String login(String username, String rawPassword) {
         // attempt authentication admin/staff user first
-        try {
-            UserDetails staffUser = userDetailsService.loadUserByUsername(username);
+        Optional<StaffAuthenticationPort.StaffUser> staffUser =
+            staffAuthenticationPort.authenticateStaff(username, rawPassword);
 
-            if (!passwordEncoder.matches(rawPassword, staffUser.getPassword())) {
-                throw new InvalidCredentialsException("Invalid username or password");
-            }
-
-            String role = staffUser.getAuthorities().stream()
-                .findFirst()
-                .map(GrantedAuthority::getAuthority)
-                .orElse("ROLE_ADMIN");
-
-            return jwtTokenProvider.generateToken(username, role);
-
-        } catch (UsernameNotFoundException notStaff) {
-            // Not staff account : try classic client authentication
+        if (staffUser.isPresent()) {
+            return tokenProvider.generateToken(username, staffUser.get().role());
         }
 
         Credentials credentials = credentialsRepository.findByUsername(username)
@@ -64,6 +50,6 @@ public class LoginService implements LoginUseCase {
             throw new InvalidCredentialsException("Invalid username or password");
         }
 
-        return jwtTokenProvider.generateToken(username, "ROLE_CLIENT");
+        return tokenProvider.generateToken(username, "ROLE_CLIENT");
     }
 }

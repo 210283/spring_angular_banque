@@ -4,7 +4,7 @@ import com.votrebanque.TestcontainersConfiguration;
 import com.votrebanque.application.port.inbound.AccountSummary;
 import com.votrebanque.application.port.outbound.AccountRepositoryPort;
 import com.votrebanque.application.port.outbound.CredentialsRepositoryPort;
-import com.votrebanque.application.service.GetMyAccountService;
+import com.votrebanque.application.port.inbound.GetMyAccountUseCase;
 import com.votrebanque.domain.exception.AccountNotFoundException;
 import com.votrebanque.domain.model.Account;
 import com.votrebanque.domain.model.AccountId;
@@ -35,7 +35,7 @@ class GetMyAccountServiceTest {
     private AccountRepositoryPort accountRepository;
 
     @Autowired
-    private GetMyAccountService getMyAccountService;
+    private GetMyAccountUseCase getMyAccountService;
 
     @Autowired
     private PasswordEncoder passwordEncoder;

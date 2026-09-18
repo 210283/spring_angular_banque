@@ -1,8 +1,8 @@
 package com.votrebanque.service;
 
-import com.votrebanque.application.service.OpenAccountService;
 import com.votrebanque.TestcontainersConfiguration;
 import com.votrebanque.application.port.inbound.AccountOpeningResult;
+import com.votrebanque.application.port.inbound.OpenAccountUseCase;
 import com.votrebanque.application.port.outbound.AccountRepositoryPort;
 import com.votrebanque.domain.model.Account;
 import com.votrebanque.domain.model.AccountType;
@@ -26,10 +26,9 @@ class OpenAccountServiceTest {
     private AccountRepositoryPort bankAccountRepository;
 
     @Autowired
-    private OpenAccountService openAccountService;
+    private OpenAccountUseCase openAccountService;
 
-    @Autowired
-    private AccountType accountType;
+    private final AccountType accountType = AccountType.CURRENT;
 
     @Test
     void shouldOpenAccountSuccessfullyWithGeneratedId() {

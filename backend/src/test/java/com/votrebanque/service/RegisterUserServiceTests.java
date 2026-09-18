@@ -4,7 +4,6 @@ import com.votrebanque.TestcontainersConfiguration;
 import com.votrebanque.application.port.inbound.RegisterUserUseCase;
 import com.votrebanque.application.port.outbound.ActivationTokenRepositoryPort;
 import com.votrebanque.application.port.outbound.CredentialsRepositoryPort;
-import com.votrebanque.application.service.RegisterUserService;
 import com.votrebanque.domain.model.AccountId;
 import com.votrebanque.domain.model.Credentials;
 import org.junit.jupiter.api.Test;
@@ -33,7 +32,7 @@ class RegisterUserServiceTests {
     private ActivationTokenRepositoryPort tokenRepository;
 
     @Autowired
-    private RegisterUserService registerUserService;
+    private RegisterUserUseCase registerUserService;
 
     private final AccountId accountId = new AccountId("FR769854210");
 

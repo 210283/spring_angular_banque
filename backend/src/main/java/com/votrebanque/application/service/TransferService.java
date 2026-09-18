@@ -8,10 +8,6 @@ import com.votrebanque.domain.model.Account;
 import com.votrebanque.domain.model.Money;
 import com.votrebanque.domain.model.TransactionCategory;
 import lombok.RequiredArgsConstructor;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-
-@Service
 @RequiredArgsConstructor
 public class TransferService implements TransferUseCase {
 
@@ -20,7 +16,6 @@ public class TransferService implements TransferUseCase {
     private final TransactionRecorder transactionRecorder;
 
     @Override
-    @Transactional
     public void makeTransfer(AccountId sourceAccountId, String destinationIdentifier, Money amount) {
         Account compteSource = bankAccountRepository.findByNumber(sourceAccountId)
                 .orElseThrow(() -> new IllegalArgumentException("Source account not found."));

@@ -1,8 +1,8 @@
 package com.votrebanque.service;
 
-import com.votrebanque.application.service.GetAccountSummaryService;
 import com.votrebanque.TestcontainersConfiguration;
 import com.votrebanque.application.port.inbound.AccountSummary;
+import com.votrebanque.application.port.inbound.GetAccountSummaryUseCase;
 import com.votrebanque.application.port.outbound.AccountRepositoryPort;
 import com.votrebanque.domain.exception.AccountNotFoundException;
 import com.votrebanque.domain.model.Account;
@@ -29,7 +29,7 @@ class GetAccountSummaryServiceTest {
     private AccountRepositoryPort bankAccountRepository;
 
     @Autowired
-    private GetAccountSummaryService getAccountSummaryService;
+    private GetAccountSummaryUseCase getAccountSummaryService;
 
     @BeforeEach
     void setUp() {

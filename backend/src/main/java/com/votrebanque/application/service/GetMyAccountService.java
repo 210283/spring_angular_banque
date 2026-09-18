@@ -1,6 +1,5 @@
 package com.votrebanque.application.service;
 
-import org.springframework.stereotype.Service;
 import com.votrebanque.application.port.inbound.AccountSummary;
 import com.votrebanque.application.port.inbound.GetAccountSummaryUseCase;
 import com.votrebanque.application.port.inbound.GetMyAccountUseCase;
@@ -8,7 +7,6 @@ import com.votrebanque.application.port.outbound.CredentialsRepositoryPort;
 import com.votrebanque.domain.exception.AccountNotFoundException;
 import com.votrebanque.domain.model.Credentials;
 
-@Service
 public class GetMyAccountService implements GetMyAccountUseCase {
 
     private final CredentialsRepositoryPort credentialsRepository;

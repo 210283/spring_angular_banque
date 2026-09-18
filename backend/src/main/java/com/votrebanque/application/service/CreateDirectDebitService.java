@@ -6,11 +6,8 @@ import com.votrebanque.application.port.outbound.BeneficiaryRepositoryPort;
 import com.votrebanque.application.port.outbound.DirectDebitRepositoryPort;
 import com.votrebanque.domain.exception.AccountNotFoundException;
 import com.votrebanque.domain.model.*;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 import java.time.LocalDate;
 
-@Service
 public class CreateDirectDebitService implements CreateDirectDebitUseCase {
 
     private final DirectDebitRepositoryPort directDebitRepository;
@@ -26,7 +23,6 @@ public class CreateDirectDebitService implements CreateDirectDebitUseCase {
     }
 
     @Override
-    @Transactional
     public DirectDebitResult createDirectDebit(AccountId sourceAccountId, AccountId beneficiaryAccountId,
                                                 Money amount, DirectDebitFrequency frequency, LocalDate startDate) {
 

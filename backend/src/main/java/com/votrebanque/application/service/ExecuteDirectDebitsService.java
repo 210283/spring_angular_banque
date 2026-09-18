@@ -10,13 +10,10 @@ import com.votrebanque.domain.model.DirectDebit;
 import com.votrebanque.domain.model.TransactionCategory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
 import java.util.List;
 
-@Service
 public class ExecuteDirectDebitsService implements ExecuteDirectDebitsUseCase {
 
     private static final Logger log = LoggerFactory.getLogger(ExecuteDirectDebitsService.class);
@@ -34,7 +31,6 @@ public class ExecuteDirectDebitsService implements ExecuteDirectDebitsUseCase {
     }
 
     @Override
-    @Transactional
     public int executeDueDirectDebits() {
         LocalDate today = LocalDate.now();
         List<DirectDebit> dueDirectDebits = directDebitRepository.findAllDueOn(today);

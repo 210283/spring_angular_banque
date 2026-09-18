@@ -2,10 +2,8 @@ package com.votrebanque.application.service;
 
 import com.votrebanque.application.port.outbound.TransactionRepositoryPort;
 import com.votrebanque.domain.model.*;
-import org.springframework.stereotype.Component;
 import java.util.UUID;
 
-@Component
 public class TransactionRecorder {
 
     private final TransactionRepositoryPort transactionRepository;

@@ -2,17 +2,17 @@ package com.votrebanque.service;
 
 import com.votrebanque.TestcontainersConfiguration;
 import com.votrebanque.application.port.outbound.CredentialsRepositoryPort;
-import com.votrebanque.application.service.LoginService;
+import com.votrebanque.application.port.outbound.PasswordEncoderPort;
+import com.votrebanque.application.port.outbound.TokenProviderPort;
+import com.votrebanque.application.port.inbound.LoginUseCase;
 import com.votrebanque.domain.exception.InvalidCredentialsException;
 import com.votrebanque.domain.model.AccountId;
 import com.votrebanque.domain.model.Credentials;
-import com.votrebanque.infrastructure.security.config.JwtTokenProvider;
 import jakarta.persistence.EntityManager;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.context.annotation.Import;
-import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.transaction.annotation.Transactional;
 
 
@@ -28,13 +28,13 @@ class LoginServiceTest {
     private CredentialsRepositoryPort credentialsRepository;
 
     @Autowired
-    private LoginService loginService;
+    private LoginUseCase loginService;
 
     @Autowired
-    private PasswordEncoder passwordEncoder;
+    private PasswordEncoderPort passwordEncoder;
 
     @Autowired
-    private JwtTokenProvider jwtTokenProvider;
+    private TokenProviderPort jwtTokenProvider;
 
     @Autowired
     private EntityManager entityManager;

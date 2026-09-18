@@ -2,9 +2,6 @@ package com.votrebanque.domain.validator;
 
 import java.nio.charset.StandardCharsets;
 
-import org.springframework.stereotype.Component;
-
-@Component
 public class PasswordPolicyValidator {
 
     public void validate(String rawPassword) {

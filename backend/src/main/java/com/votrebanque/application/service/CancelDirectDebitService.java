@@ -4,10 +4,7 @@ import com.votrebanque.application.port.inbound.CancelDirectDebitUseCase;
 import com.votrebanque.application.port.outbound.DirectDebitRepositoryPort;
 import com.votrebanque.domain.model.AccountId;
 import com.votrebanque.domain.model.DirectDebit;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
-@Service
 public class CancelDirectDebitService implements CancelDirectDebitUseCase {
 
     private final DirectDebitRepositoryPort repository;
@@ -17,7 +14,6 @@ public class CancelDirectDebitService implements CancelDirectDebitUseCase {
     }
 
     @Override
-    @Transactional
     public void cancelDirectDebit(AccountId accountNumber, String directDebitId) {
         DirectDebit directDebit = repository.findById(directDebitId)
             .orElseThrow(() -> new IllegalArgumentException("Direct debit not found."));

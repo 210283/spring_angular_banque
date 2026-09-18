@@ -56,7 +56,8 @@ public class End2EndOpenAccountTest {
         String jsonRequest = """
                 {
                 "owner": "Charlie",
-                "initialDeposit": 150.00
+                "initialDeposit": 150.00,
+                "accountType": "CURRENT"
                 }
                 """;
 
@@ -91,7 +92,8 @@ public class End2EndOpenAccountTest {
         String jsonRequest = """
                 {
                   "owner": "Charlie",
-                  "initialDeposit": 10.00
+                                    "initialDeposit": 10.00,
+                                    "accountType": "CURRENT"
                 }
                 """;
 
@@ -114,7 +116,8 @@ public class End2EndOpenAccountTest {
         String jsonRequest = """
                 {
                 "owner": "Charlie",
-                "initialDeposit": 150.00
+                "initialDeposit": 150.00,
+                "accountType": "CURRENT"
                 }
                 """;
 

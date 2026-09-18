@@ -3,7 +3,8 @@ package com.votrebanque.service;
 import com.votrebanque.TestcontainersConfiguration;
 import com.votrebanque.application.port.outbound.ActivationTokenRepositoryPort;
 import com.votrebanque.application.port.outbound.CredentialsRepositoryPort;
-import com.votrebanque.application.service.ActivateAccountService;
+import com.votrebanque.application.port.outbound.PasswordEncoderPort;
+import com.votrebanque.application.port.inbound.ActivateAccountUseCase;
 import com.votrebanque.domain.exception.InvalidOrExpiredTokenException;
 import com.votrebanque.domain.model.AccountId;
 import com.votrebanque.domain.model.ActivationToken;
@@ -13,7 +14,6 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.context.annotation.Import;
-import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.Duration;
@@ -34,10 +34,10 @@ class ActivateAccountServiceTest {
     private ActivationTokenRepositoryPort tokenRepository;
 
     @Autowired
-    private ActivateAccountService activateAccountService;
+    private ActivateAccountUseCase activateAccountService;
 
     @Autowired
-    private PasswordEncoder passwordEncoder;
+    private PasswordEncoderPort passwordEncoder;
 
     @Autowired
     private EntityManager entityManager;

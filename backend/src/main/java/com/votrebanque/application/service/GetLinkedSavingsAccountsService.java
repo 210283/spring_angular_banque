@@ -6,11 +6,9 @@ import com.votrebanque.application.port.outbound.BeneficiaryRepositoryPort;
 import com.votrebanque.application.port.outbound.CredentialsRepositoryPort;
 import com.votrebanque.domain.model.AccountType;
 import com.votrebanque.domain.model.Credentials;
-import org.springframework.stereotype.Service;
 
 import java.util.List;
 
-@Service
 public class GetLinkedSavingsAccountsService implements GetLinkedSavingsAccountsUseCase {
 
     private final CredentialsRepositoryPort credentialsRepository;

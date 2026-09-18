@@ -3,9 +3,7 @@ package com.votrebanque.application.service;
 import com.votrebanque.application.port.inbound.GetActivationEmailPreviewUseCase;
 import com.votrebanque.application.port.outbound.EmailPreviewPort;
 import com.votrebanque.domain.exception.EmailNotFoundException;
-import org.springframework.stereotype.Service;
 
-@Service
 public class GetActivationEmailPreviewService implements GetActivationEmailPreviewUseCase {
 
     private static final String EMAIL_DOMAIN = "@votrebanque.com";

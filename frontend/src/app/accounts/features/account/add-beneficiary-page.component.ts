@@ -3,7 +3,8 @@ import { AccountUseCases } from '../../application/account.use-cases';
 import { ACCOUNT_USE_CASES } from '../../../app.config';
 import { FormAddBeneficiaryComponent } from '../../ui/forms/form-add-beneficiary.component';
 import { Router } from '@angular/router';
-import { BeneficiaryRequest } from '../../domain/entities/account.model';
+import { BeneficiaryCommand } from '../../domain/models/account.model';
+import { from } from 'rxjs';
 
 @Component({
   selector: 'app-add-beneficiary-page',
@@ -41,7 +42,7 @@ export class AddBeneficiaryPageComponent implements OnInit {
   ngOnInit(): void {
     this.loading.set(true);
 
-    this.apiService.getMyAccount().subscribe({
+    from(this.apiService.getMyAccount()).subscribe({
       next: (summary) => {
         this.currentAccountNumber = summary.accountId;
         this.loading.set(false);
@@ -53,7 +54,7 @@ export class AddBeneficiaryPageComponent implements OnInit {
     });
   }
 
-  addBeneficiary(request: BeneficiaryRequest) {
+  addBeneficiary(request: BeneficiaryCommand) {
     if (!this.currentAccountNumber) {
       this.errorMessage.set("Unable to retrieve the current account number.");
       return;
@@ -62,7 +63,7 @@ export class AddBeneficiaryPageComponent implements OnInit {
     this.isSubmitting.set(true);
     this.errorMessage.set(null);
 
-    this.apiService.addBeneficiary(this.currentAccountNumber, request).subscribe({
+    from(this.apiService.addBeneficiary(this.currentAccountNumber, request)).subscribe({
       next: () => {
         alert("Beneficiary added successfully.");
         this.router.navigate(['/accounts', 'transfer']);

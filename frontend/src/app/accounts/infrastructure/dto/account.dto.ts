@@ -1,30 +1,32 @@
-export interface TransferRequest {
+import { AccountType, DirectDebitFrequency, TransactionCategory, TransactionType } from '../../domain/models/account.model';
+
+export interface TransferRequestDto {
   sourceAccountNumber: string;
   destinationAccountNumber: string;
   amount: number;
 }
 
-export interface BalanceAccount {
+export interface BalanceAccountDto {
   accountId: string;
   newBalance: number;
   status: 'SUCCESS' | 'FAILED';
 }
 
-export interface OpenAccountRequest {
+export interface OpenAccountRequestDto {
   owner: string | null;
   initialDeposit: number;
   accountType: AccountType;
   linkedAccountNumber: string | null;
 }
 
-export interface AccountCreationResponse {
+export interface AccountCreationResponseDto {
   accountId: string;
   username: string;
   activationUrl: string;
   accountType: AccountType;
 }
 
-export interface AccountSummaryResponse {
+export interface AccountSummaryResponseDto {
   accountId: string;
   owner: string;
   balance: number;
@@ -32,13 +34,13 @@ export interface AccountSummaryResponse {
   interestRate: number;
 }
 
-export interface BeneficiaryRequest {
+export interface BeneficiaryRequestDto {
   label: string;
   accountNumber: string;
   ownerName: string;
 }
 
-export interface BeneficiaryResponse {
+export interface BeneficiaryResponseDto {
   id: string;
   label: string;
   beneficiaryAccountNumber: string;
@@ -46,26 +48,13 @@ export interface BeneficiaryResponse {
   accountType: AccountType;
 }
 
-export interface ActivationEmailPreview {
+export interface ActivationEmailPreviewDto {
   subject: string;
   text: string;
   html: string;
 }
 
-export type AccountType = 'CURRENT' | 'SAVINGS' | 'BOOKLET' | 'LDD';
-
-export const ACCOUNT_TYPE_LABELS: Record<AccountType, string> = {
-  CURRENT: 'Compte Courant',
-  SAVINGS: 'Compte Épargne',
-  BOOKLET: 'Livret A',
-  LDD: 'LDD'
-};
-
-
-export type TransactionType = 'DEBIT' | 'CREDIT';
-export type TransactionCategory = 'OPENING_DEPOSIT' | 'TRANSFER' | 'DIRECT_DEBIT' | 'INTEREST';
-
-export interface TransactionResponse {
+export interface TransactionResponseDto {
   id: string;
   type: TransactionType;
   category: TransactionCategory;
@@ -77,16 +66,14 @@ export interface TransactionResponse {
   occurredAt: string;
 }
 
-export type DirectDebitFrequency = 'WEEKLY' | 'MONTHLY';
-
-export interface CreateDirectDebitRequest {
+export interface CreateDirectDebitRequestDto {
   beneficiaryAccountNumber: string;
   amount: number;
   frequency: DirectDebitFrequency;
-  startDate: string; // yyyy-MM-dd
+  startDate: string;
 }
 
-export interface DirectDebitResponse {
+export interface DirectDebitResponseDto {
   id: string;
   beneficiaryAccountNumber: string;
   beneficiaryLabel: string | null;

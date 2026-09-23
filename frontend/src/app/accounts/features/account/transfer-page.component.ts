@@ -1,8 +1,9 @@
 import { Component, OnInit, inject, signal } from '@angular/core';
 import { ACCOUNT_USE_CASES } from '../../../app.config';
 import { FormTransferComponent } from '../../ui/forms/form-transfer.component';
-import { BeneficiaryResponse, TransferRequest, ACCOUNT_TYPE_LABELS } from '../../domain/entities/account.model';
+import { Beneficiary, TransferCommand, ACCOUNT_TYPE_LABELS } from '../../domain/models/account.model';
 import { Router } from '@angular/router';
+import { from } from 'rxjs';
 
 @Component({
   selector: 'app-page-transfer',
@@ -58,11 +59,11 @@ export class TransferPageComponent implements OnInit {
   errorMessage = signal('');
   loading = signal(false);
   isSubmitting = signal(false);
-  beneficiaries = signal<BeneficiaryResponse[]>([]);
+  beneficiaries = signal<Beneficiary[]>([]);
   readonly ACCOUNT_TYPE_LABELS = ACCOUNT_TYPE_LABELS;
 
   private sourceAccountNumber = '';
-  selectedBeneficiary: BeneficiaryResponse | null = null;
+  selectedBeneficiary: Beneficiary | null = null;
 
   private router = inject(Router);
   private accountUseCases = inject(ACCOUNT_USE_CASES);
@@ -70,7 +71,7 @@ export class TransferPageComponent implements OnInit {
   ngOnInit(): void {
     this.loading.set(true);
 
-    this.accountUseCases.getMyAccount().subscribe({
+    from(this.accountUseCases.getMyAccount()).subscribe({
       next: (summary) => {
         this.sourceAccountNumber = summary.accountId;
         this.loading.set(false);
@@ -95,13 +96,13 @@ export class TransferPageComponent implements OnInit {
 
     this.isSubmitting.set(true);
 
-    const payload: TransferRequest = {
+    const payload: TransferCommand = {
       sourceAccountNumber: this.sourceAccountNumber,
       destinationAccountNumber: this.selectedBeneficiary.beneficiaryAccountNumber,
       amount: amountToTransfer
     };
 
-    this.accountUseCases.transfer(payload).subscribe({
+    from(this.accountUseCases.transfer(payload)).subscribe({
       next: (reponseMessage) => {
         alert(reponseMessage);
         this.isSubmitting.set(false);
@@ -124,7 +125,7 @@ export class TransferPageComponent implements OnInit {
   }
 
   getBeneficiaries(accountNumber: string) {
-    this.accountUseCases.getBeneficiaries(accountNumber).subscribe({
+    from(this.accountUseCases.getBeneficiaries(accountNumber)).subscribe({
       next: (beneficiaries) => {
         this.beneficiaries.set(beneficiaries);
       },

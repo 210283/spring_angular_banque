@@ -1,7 +1,7 @@
 import { Component, input, output, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { AccountType, OpenAccountRequest, ACCOUNT_TYPE_LABELS } from '../../domain/entities/account.model';
+import { AccountType, OpenAccountCommand, ACCOUNT_TYPE_LABELS } from '../../domain/models/account.model';
 
 @Component({
   selector: 'app-form-open-account',
@@ -59,7 +59,7 @@ export class FormOpenAccountComponent {
   labels = ACCOUNT_TYPE_LABELS;
 
   isSubmitting = input<boolean>(false);
-  onValidOpenAccount = output<OpenAccountRequest>();
+  onValidOpenAccount = output<OpenAccountCommand>();
 
   isValid(): boolean {
     if (this.initialDeposit <= 0) return false;

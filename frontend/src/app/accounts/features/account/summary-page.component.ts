@@ -3,8 +3,9 @@ import { Component, inject, OnInit, signal } from '@angular/core';
 import { Router } from '@angular/router';
 import { AccountUseCases } from '../../application/account.use-cases';
 import { ACCOUNT_USE_CASES } from '../../../app.config';
-import { AccountSummaryResponse, ACCOUNT_TYPE_LABELS } from '../../domain/entities/account.model';
+import { AccountSummary, ACCOUNT_TYPE_LABELS } from '../../domain/models/account.model';
 import { AuthService } from '../../../auth/auth.service';
+import { from } from 'rxjs';
 
 @Component({
   selector: 'app-page-summary',
@@ -75,8 +76,8 @@ import { AuthService } from '../../../auth/auth.service';
 })
 export class SummaryPageComponent implements OnInit {
   activeTab = signal<'accounts' | 'savings'>('accounts');
-  summary = signal<AccountSummaryResponse | undefined>(undefined);
-  savingsAccounts = signal<AccountSummaryResponse[]>([]);
+  summary = signal<AccountSummary | undefined>(undefined);
+  savingsAccounts = signal<AccountSummary[]>([]);
   loading = signal(false);
   errorMessage = signal('');
 
@@ -95,7 +96,7 @@ export class SummaryPageComponent implements OnInit {
     this.loading.set(true);
     this.errorMessage.set('');
     this.summary.set(undefined);
-    this.accountApiService.getMyAccount().subscribe({
+    from(this.accountApiService.getMyAccount()).subscribe({
       next: (summary) => {
         this.summary.set(summary);
         this.loading.set(false);
@@ -109,7 +110,7 @@ export class SummaryPageComponent implements OnInit {
   }
 
   private loadSavingsAccounts() {
-    this.accountApiService.getLinkedSavingsAccounts().subscribe({
+    from(this.accountApiService.getLinkedSavingsAccounts()).subscribe({
       next: (accounts) => {
         this.savingsAccounts.set(accounts);
       },

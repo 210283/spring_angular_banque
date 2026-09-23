@@ -1,6 +1,6 @@
 import { Component, output, inject, input } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
-import { BeneficiaryRequest } from '../../domain/entities/account.model';
+import { BeneficiaryCommand } from '../../domain/models/account.model';
 
 @Component({
   selector: 'app-form-add-beneficiary',
@@ -31,7 +31,7 @@ export class FormAddBeneficiaryComponent {
   private fb = inject(FormBuilder);
 
   isSubmitting = input<boolean>(false);
-  onSubmitBeneficiary = output<BeneficiaryRequest>();
+  onSubmitBeneficiary = output<BeneficiaryCommand>();
 
   beneficiaryForm = this.fb.nonNullable.group({
     label: ['', [Validators.required]],

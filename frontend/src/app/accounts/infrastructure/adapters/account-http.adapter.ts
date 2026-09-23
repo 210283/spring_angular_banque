@@ -1,21 +1,34 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
-import { Observable } from 'rxjs';
+import { firstValueFrom } from 'rxjs';
 import { environment } from '../../../../environments/environment';
 import { AccountGatewayPort } from '../../domain/ports/account-gateway.port';
 import {
-  AccountCreationResponse,
-  AccountSummaryResponse,
+  AccountCreation,
+  AccountResult,
+  AccountSummary,
   ActivationEmailPreview,
-  BeneficiaryRequest,
-  BeneficiaryResponse,
-  BalanceAccount,
-  CreateDirectDebitRequest,
-  DirectDebitResponse,
-  OpenAccountRequest,
-  TransactionResponse,
-  TransferRequest
-} from '../../domain/entities/account.model';
+  Beneficiary,
+  BeneficiaryCommand,
+  DirectDebit,
+  DirectDebitCommand,
+  OpenAccountCommand,
+  Transaction,
+  TransferCommand
+} from '../../domain/models/account.model';
+import {
+  AccountCreationResponseDto,
+  AccountSummaryResponseDto,
+  ActivationEmailPreviewDto,
+  BeneficiaryRequestDto,
+  BeneficiaryResponseDto,
+  BalanceAccountDto,
+  CreateDirectDebitRequestDto,
+  DirectDebitResponseDto,
+  OpenAccountRequestDto,
+  TransactionResponseDto,
+  TransferRequestDto
+} from '../dto/account.dto';
 
 @Injectable({ providedIn: 'root' })
 export class AccountHttpAdapter implements AccountGatewayPort {
@@ -23,51 +36,51 @@ export class AccountHttpAdapter implements AccountGatewayPort {
 
   constructor(private readonly http: HttpClient) {}
 
-  transfer(request: TransferRequest): Observable<BalanceAccount> {
-    return this.http.post<BalanceAccount>(`${this.apiUrl}/transfer`, request, { responseType: 'text' as 'json' });
+  transfer(request: TransferCommand): Promise<AccountResult> {
+    return firstValueFrom(this.http.post<BalanceAccountDto>(`${this.apiUrl}/transfer`, request as TransferRequestDto, { responseType: 'text' as 'json' }));
   }
 
-  openAccount(request: OpenAccountRequest): Observable<AccountCreationResponse> {
-    return this.http.post<AccountCreationResponse>(this.apiUrl, request);
+  openAccount(request: OpenAccountCommand): Promise<AccountCreation> {
+    return firstValueFrom(this.http.post<AccountCreationResponseDto>(this.apiUrl, request as OpenAccountRequestDto));
   }
 
-  getAccountSummary(accountNumber: string): Observable<AccountSummaryResponse> {
-    return this.http.get<AccountSummaryResponse>(`${this.apiUrl}/${accountNumber}/summary`);
+  getAccountSummary(accountNumber: string): Promise<AccountSummary> {
+    return firstValueFrom(this.http.get<AccountSummaryResponseDto>(`${this.apiUrl}/${accountNumber}/summary`));
   }
 
-  getMyAccount(): Observable<AccountSummaryResponse> {
-    return this.http.get<AccountSummaryResponse>(`${this.apiUrl}/me`);
+  getMyAccount(): Promise<AccountSummary> {
+    return firstValueFrom(this.http.get<AccountSummaryResponseDto>(`${this.apiUrl}/me`));
   }
 
-  addBeneficiary(accountNumber: string, request: BeneficiaryRequest): Observable<BeneficiaryResponse> {
-    return this.http.post<BeneficiaryResponse>(`${this.apiUrl}/${accountNumber}/beneficiaries`, request);
+  addBeneficiary(accountNumber: string, request: BeneficiaryCommand): Promise<Beneficiary> {
+    return firstValueFrom(this.http.post<BeneficiaryResponseDto>(`${this.apiUrl}/${accountNumber}/beneficiaries`, request as BeneficiaryRequestDto));
   }
 
-  getBeneficiaries(accountNumber: string): Observable<BeneficiaryResponse[]> {
-    return this.http.get<BeneficiaryResponse[]>(`${this.apiUrl}/${accountNumber}/beneficiaries`);
+  getBeneficiaries(accountNumber: string): Promise<Beneficiary[]> {
+    return firstValueFrom(this.http.get<BeneficiaryResponseDto[]>(`${this.apiUrl}/${accountNumber}/beneficiaries`));
   }
 
-  getActivationEmailPreview(username: string): Observable<ActivationEmailPreview> {
-    return this.http.get<ActivationEmailPreview>(`${environment.apiUrl}/api/dev/activation-email/${username}`);
+  getActivationEmailPreview(username: string): Promise<ActivationEmailPreview> {
+    return firstValueFrom(this.http.get<ActivationEmailPreviewDto>(`${environment.apiUrl}/api/dev/activation-email/${username}`));
   }
 
-  getLinkedSavingsAccounts(): Observable<AccountSummaryResponse[]> {
-    return this.http.get<AccountSummaryResponse[]>(`${this.apiUrl}/me/savings-accounts`);
+  getLinkedSavingsAccounts(): Promise<AccountSummary[]> {
+    return firstValueFrom(this.http.get<AccountSummaryResponseDto[]>(`${this.apiUrl}/me/savings-accounts`));
   }
 
-  getTransactionHistory(accountNumber: string): Observable<TransactionResponse[]> {
-    return this.http.get<TransactionResponse[]>(`${this.apiUrl}/${accountNumber}/transactions`);
+  getTransactionHistory(accountNumber: string): Promise<Transaction[]> {
+    return firstValueFrom(this.http.get<TransactionResponseDto[]>(`${this.apiUrl}/${accountNumber}/transactions`));
   }
 
-  createDirectDebit(accountNumber: string, request: CreateDirectDebitRequest): Observable<DirectDebitResponse> {
-    return this.http.post<DirectDebitResponse>(`${this.apiUrl}/${accountNumber}/direct-debits`, request);
+  createDirectDebit(accountNumber: string, request: DirectDebitCommand): Promise<DirectDebit> {
+    return firstValueFrom(this.http.post<DirectDebitResponseDto>(`${this.apiUrl}/${accountNumber}/direct-debits`, request as CreateDirectDebitRequestDto));
   }
 
-  getDirectDebits(accountNumber: string): Observable<DirectDebitResponse[]> {
-    return this.http.get<DirectDebitResponse[]>(`${this.apiUrl}/${accountNumber}/direct-debits`);
+  getDirectDebits(accountNumber: string): Promise<DirectDebit[]> {
+    return firstValueFrom(this.http.get<DirectDebitResponseDto[]>(`${this.apiUrl}/${accountNumber}/direct-debits`));
   }
 
-  cancelDirectDebit(accountNumber: string, directDebitId: string): Observable<void> {
-    return this.http.delete<void>(`${this.apiUrl}/${accountNumber}/direct-debits/${directDebitId}`);
+  cancelDirectDebit(accountNumber: string, directDebitId: string): Promise<void> {
+    return firstValueFrom(this.http.delete<void>(`${this.apiUrl}/${accountNumber}/direct-debits/${directDebitId}`));
   }
 }

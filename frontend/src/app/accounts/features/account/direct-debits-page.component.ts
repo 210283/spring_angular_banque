@@ -3,9 +3,10 @@ import { Component, inject, OnInit, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { AccountUseCases } from '../../application/account.use-cases';
 import { ACCOUNT_USE_CASES } from '../../../app.config';
-import { BeneficiaryResponse, DirectDebitFrequency, DirectDebitResponse } from '../../domain/entities/account.model';
+import { Beneficiary, DirectDebit, DirectDebitFrequency } from '../../domain/models/account.model';
 import { Router } from '@angular/router';
-import { ACCOUNT_TYPE_LABELS } from '../../domain/entities/account.model';
+import { from } from 'rxjs';
+import { ACCOUNT_TYPE_LABELS } from '../../domain/models/account.model';
 
 @Component({
   selector: 'app-direct-debits-page',
@@ -89,10 +90,10 @@ export class DirectDebitsPageComponent implements OnInit {
   isSubmitting = signal(false);
 
   private accountNumber = '';
-  beneficiaries = signal<BeneficiaryResponse[]>([]);
-  directDebits = signal<DirectDebitResponse[]>([]);
+  beneficiaries = signal<Beneficiary[]>([]);
+  directDebits = signal<DirectDebit[]>([]);
 
-  selectedBeneficiary: BeneficiaryResponse | null = null;
+  selectedBeneficiary: Beneficiary | null = null;
   amount = 0;
   frequency: DirectDebitFrequency = 'MONTHLY';
   startDate = new Date().toISOString().slice(0, 10);
@@ -100,7 +101,7 @@ export class DirectDebitsPageComponent implements OnInit {
   ngOnInit(): void {
     this.loading.set(true);
 
-    this.accountApiService.getMyAccount().subscribe({
+    from(this.accountApiService.getMyAccount()).subscribe({
       next: (summary) => {
         this.accountNumber = summary.accountId;
         this.loadBeneficiaries();
@@ -114,7 +115,7 @@ export class DirectDebitsPageComponent implements OnInit {
   }
 
   private loadBeneficiaries() {
-    this.accountApiService.getBeneficiaries(this.accountNumber).subscribe({
+    from(this.accountApiService.getBeneficiaries(this.accountNumber)).subscribe({
       next: (beneficiaries) => {
         this.beneficiaries.set(beneficiaries);
         this.loading.set(false);
@@ -127,7 +128,7 @@ export class DirectDebitsPageComponent implements OnInit {
   }
 
   private loadDirectDebits() {
-    this.accountApiService.getDirectDebits(this.accountNumber).subscribe({
+    from(this.accountApiService.getDirectDebits(this.accountNumber)).subscribe({
       next: (dds) => this.directDebits.set(dds),
       error: () => this.errorMessage.set('Unable to load direct debits.')
     });
@@ -142,19 +143,19 @@ export class DirectDebitsPageComponent implements OnInit {
 
     this.isSubmitting.set(true);
 
-    this.accountApiService.createDirectDebit(this.accountNumber, {
+    from(this.accountApiService.createDirectDebit(this.accountNumber, {
       beneficiaryAccountNumber: this.selectedBeneficiary.beneficiaryAccountNumber,
       amount: this.amount,
       frequency: this.frequency,
       startDate: this.startDate
-    }).subscribe({
+    })).subscribe({
       next: () => {
         this.isSubmitting.set(false);
         this.amount = 0;
         this.selectedBeneficiary = null;
         this.loadDirectDebits();
       },
-      error: (err) => {
+      error: (err: any) => {
         this.isSubmitting.set(false);
         alert(err.error?.detail || 'Unable to create direct debit.');
       }
@@ -162,7 +163,7 @@ export class DirectDebitsPageComponent implements OnInit {
   }
 
   cancel(directDebitId: string) {
-    this.accountApiService.cancelDirectDebit(this.accountNumber, directDebitId).subscribe({
+    from(this.accountApiService.cancelDirectDebit(this.accountNumber, directDebitId)).subscribe({
       next: () => this.loadDirectDebits(),
       error: () => alert('Unable to cancel direct debit.')
     });

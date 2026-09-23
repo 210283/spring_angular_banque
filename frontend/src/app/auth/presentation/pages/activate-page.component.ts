@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { ReactiveFormsModule, FormBuilder, Validators, AbstractControl, ValidationErrors } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 import { AUTH_GATEWAY } from '../../infrastructure/auth-gateway.token';
+import { from } from 'rxjs';
 
 @Component({
   selector: 'app-activate-page',
@@ -73,7 +74,7 @@ export class ActivatePageComponent implements OnInit {
     this.isSubmitting = true;
     this.submitError = null;
 
-    this.authGateway.activate(this.username, this.token, this.form.value.newPassword ?? '').subscribe({
+    from(this.authGateway.activate(this.username, this.token, this.form.value.newPassword ?? '')).subscribe({
       next: () => {
         this.successMessage = 'Your account has been activated successfully!';
         this.isSubmitting = false;

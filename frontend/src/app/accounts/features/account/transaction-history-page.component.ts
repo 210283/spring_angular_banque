@@ -2,8 +2,9 @@ import { CommonModule } from '@angular/common';
 import { Component, inject, OnInit, signal } from '@angular/core';
 import { AccountUseCases } from '../../application/account.use-cases';
 import { ACCOUNT_USE_CASES } from '../../../app.config';
-import { TransactionResponse } from '../../domain/entities/account.model';
+import { Transaction } from '../../domain/models/account.model';
 import { Router } from '@angular/router';
+import { from } from 'rxjs';
 
 @Component({
   selector: 'app-transaction-history-page',
@@ -58,16 +59,16 @@ export class TransactionHistoryPageComponent implements OnInit {
   private accountApiService = inject(ACCOUNT_USE_CASES);
   private router = inject(Router);
 
-  transactions = signal<TransactionResponse[]>([]);
+  transactions = signal<Transaction[]>([]);
   loading = signal(false);
   errorMessage = signal('');
 
   ngOnInit(): void {
     this.loading.set(true);
 
-    this.accountApiService.getMyAccount().subscribe({
+    from(this.accountApiService.getMyAccount()).subscribe({
       next: (summary) => {
-        this.accountApiService.getTransactionHistory(summary.accountId).subscribe({
+        from(this.accountApiService.getTransactionHistory(summary.accountId)).subscribe({
           next: (transactions) => {
             this.transactions.set(transactions);
             this.loading.set(false);

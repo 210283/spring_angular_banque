@@ -1,6 +1,6 @@
 import { Injectable, computed, signal, inject } from '@angular/core';
 import { Router } from '@angular/router';
-import { Observable, tap } from 'rxjs';
+import { Observable, from, tap } from 'rxjs';
 import { AUTH_GATEWAY } from './infrastructure/auth-gateway.token';
 import { LoginResponse } from './domain/ports/auth-gateway.port';
 
@@ -31,7 +31,7 @@ export class AuthService {
   }
 
   login(username: string, password: string): Observable<LoginResponse> {
-    return this.authGateway.login(username, password).pipe(
+    return from(this.authGateway.login(username, password)).pipe(
       tap(response => {
         localStorage.setItem(this.TOKEN_KEY, response.token);
         this.token.set(response.token);

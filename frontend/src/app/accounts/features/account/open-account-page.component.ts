@@ -4,11 +4,12 @@ import { DomSanitizer } from '@angular/platform-browser';
 import { FormOpenAccountComponent } from '../../ui/forms/form-open-account.component';
 import { AccountUseCases } from '../../application/account.use-cases';
 import { ACCOUNT_USE_CASES } from '../../../app.config';
-import { OpenAccountRequest, AccountCreationResponse, ActivationEmailPreview } from '../../domain/entities/account.model';
+import { OpenAccountCommand, AccountCreation, ActivationEmailPreview } from '../../domain/models/account.model';
 import { RouterLink } from '@angular/router';
 import { AuthService } from '../../../auth/auth.service';
 import { environment } from '../../../../environments/environment';
-import { ACCOUNT_TYPE_LABELS, AccountType } from '../../domain/entities/account.model';
+import { ACCOUNT_TYPE_LABELS, AccountType } from '../../domain/models/account.model';
+import { from } from 'rxjs';
 
 @Component({
   selector: 'app-page-open-account',
@@ -58,18 +59,18 @@ export class OpenAccountPageComponent {
   isProduction = environment.production;
 
   isSubmitting = signal<boolean>(false);
-  successResponse = signal<AccountCreationResponse | null>(null);
+  successResponse = signal<AccountCreation | null>(null);
   errorMessage = signal<string | null>(null);
 
   emailPreview = signal<ActivationEmailPreview | null>(null);
   emailLoading = signal(false);
   emailError = signal<string | null>(null);
 
-  openAccount(request: OpenAccountRequest) {
+  openAccount(request: OpenAccountCommand) {
     this.errorMessage.set('');
     this.isSubmitting.set(true);
 
-    this.accountApiService.openAccount(request).subscribe({
+    from(this.accountApiService.openAccount(request)).subscribe({
       next: (response) => {
         this.successResponse.set(response);
         this.isSubmitting.set(false);
@@ -90,7 +91,7 @@ export class OpenAccountPageComponent {
     this.emailLoading.set(true);
     this.emailError.set(null);
 
-    this.accountApiService.getActivationEmailPreview(this.successResponse()?.username ||"").subscribe({
+    from(this.accountApiService.getActivationEmailPreview(this.successResponse()?.username ||"")).subscribe({
       next: (preview) => {
         this.emailPreview.set(preview);
         this.emailLoading.set(false);

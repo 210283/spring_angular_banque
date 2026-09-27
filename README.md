@@ -1,102 +1,227 @@
-![CI](https://github.com/210283/spring_angular_banque/actions/workflows/ci.yml/badge.svg)
 # VotreBanque
-Application bancaire fullstack : backend Spring Boot (architecture hexagonale) + frontend Angular, avec authentification JWT, activation de compte par email, comptes courants et comptes épargne (Livret A, LDD) avec calcul d'intérêts, gestion de virements/bénéficiaires, historique des transactions et prélèvements automatiques récurrents.
 
-## Démo en ligne
-🔗 **Frontend** : https://votrebanque-frontend.onrender.com
-🔗 **Backend (API)** : https://votrebanque-backend.onrender.com
+Application bancaire fullstack avec une architecture Clean Architecture / Hexagonale côté backend et une organisation feature-first côté frontend.
 
-⚠️ Hébergé sur les tiers gratuits de Render : le backend peut mettre **jusqu'à une minute** à répondre lors de la première requête après une période d'inactivité (mise en veille automatique). Patientez et réessayez si le premier chargement semble bloqué.
+Le projet associe :
+- un backend Java/Spring avec séparation Domain / Application / Infrastructure
+- un frontend Angular avec modules par domaine fonctionnel
+- une authentification JWT
+- une gestion de comptes, virements, bénéficiaires, prélèvements et intérêts
+
+## Vue d'ensemble
+
+Cette application est conçue pour montrer un exemple de projet bancaire structuré selon les bonnes pratiques d'architecture logicielle :
+- le noyau métier reste indépendant des frameworks
+- la logique applicative passe par des ports explicites
+- les adapters techniques sont isolés dans l'infrastructure
+- le frontend garde la logique de domaine dans des modèles purs et des services d'adaptation HTTP
+
+## Architecture backend
+
+Le backend suit le schéma suivant :
+
+```text
+backend/
+└── src/main/java/com/votrebanque/
+    ├── domain/                 # Règles métier pures, modèles, exceptions, validateurs
+    │   ├── model/
+    │   ├── exception/
+    │   ├── validator/
+    │   └── service/
+    │
+    ├── application/            # Cas d'usage / logique applicative
+    │   ├── port/
+    │   ├── service/
+    │   └── mapper/
+    │
+    └── infrastructure/         # Adaptateurs Spring, JPA, sécurité, email, scheduling
+        ├── adapters/
+        ├── config/
+        ├── persistence/
+        ├── security/
+        ├── notification/
+        ├── scheduling/
+        └── ...
+```
+
+### Rôle de chaque couche
+
+- Domain : entités métier, valeurs, règles et exceptions sans dépendance Spring/JPA.
+- Application : use cases, orchestration, ports d'entrée et de sortie.
+- Infrastructure : implémentations concrètes des ports, Spring Data, JWT, security, mail, etc.
+
+### Analogie Laravel
+
+Si vous venez de Laravel, on peut comparer la structure comme ceci :
+- Domain = le cœur métier, proche d'un "Service / Model business" pur, sans dépendance framework
+- Application = les Actions / Use Cases, comme des services d'application qui orchestrent la logique
+- Infrastructure = les Repository, Providers, Notifications, Security adapters, comme le côté "Service Container / Laravel Service Provider"
+- Ports = les interfaces de contrat, équivalents aux abstractions que Laravel utilise souvent via interfaces de repository ou services
+
+L'objectif est clair : le code métier ne doit pas savoir qu'il tourne sous Spring ou JPA.
+
+## Architecture frontend
+
+Le frontend est ordonné par domaine fonctionnel, avec des couches distinctes :
+
+```text
+frontend/src/app/
+├── app.config.ts
+├── app.routes.ts
+├── accounts/
+│   ├── domain/
+│   │   ├── entities/
+│   │   ├── models/
+│   │   └── ports/
+│   ├── application/
+│   │   └── account.use-cases.ts
+│   ├── infrastructure/
+│   │   ├── adapters/
+│   │   └── dto/
+│   ├── features/
+│   └── ui/
+├── auth/
+│   ├── domain/
+│   ├── infrastructure/
+│   ├── presentation/
+│   └── ...
+└── shared/
+```
+
+### Rôle de chaque couche
+
+- domain : modèles et ports métier, sans dépendance Angular HTTP directe
+- application : orchestration des cas d'usage pour les composants
+- infrastructure : adaptateurs HTTP, DTOs, appels API
+- features / presentation : composants, pages, formulaires et écrans
+
+### Analogie React
+
+Pour quelqu'un venant de React, l'architecture est proche d'une séparation par features :
+- domain = logique métier pure et types de données
+- application = hooks / use cases / orchestrateurs de logique
+- infrastructure = appels API et adaptateurs externes
+- presentation = composants visuels et pages
+
+Les services Angular et les providers jouent ici un rôle comparable à la couche d'accès aux données en React, avec un meilleur découpage par responsabilité.
 
 ## Fonctionnalités
-- **Authentification** : JWT, rôles admin/client, verrouillage de compte après échecs de connexion répétés
-- **Ouverture de compte** : compte courant (identifiant + activation par email) ou compte épargne/Livret A/LDD (lié automatiquement au compte courant comme bénéficiaire réciproque, sans identifiants propres)
-- **Intérêts** : calcul quotidien automatique (job planifié `@Scheduled`) sur les comptes épargne, avec taux différencié par type de compte
-- **Virements & bénéficiaires** : ajout de bénéficiaires avec vérification du titulaire, virements entre comptes autorisés
-- **Historique des transactions** : ledger complet par compte (dépôt initial, virements, intérêts, prélèvements), consultable depuis l'interface
-- **Prélèvements automatiques** : mise en place de prélèvements récurrents (hebdomadaire/mensuel) vers un bénéficiaire, exécutés automatiquement chaque nuit par un job planifié, avec rattrapage automatique en cas d'indisponibilité temporaire du serveur
-- **Aperçu d'email en local** : consultation directe du contenu de l'email d'activation depuis l'interface (via l'API Mailpit interrogée côté serveur), sans exposer Mailpit publiquement
+
+- Authentification JWT avec rôles admin/client
+- Ouverture de compte courant et comptes d'épargne
+- Calcul automatisé des intérêts
+- Gestion de bénéficiaires et de virements
+- Historique des transactions
+- Prélèvements automatiques récurrents
+- Activation de compte par email
+- Interface administrative de gestion des comptes
 
 ## Stack technique
-- **Backend** : Spring Boot 4, Spring Security, Spring Data JPA, PostgreSQL, JWT (JJWT), tâches planifiées (`@Scheduled`)
-- **Frontend** : Angular 22 (standalone components, signals)
-- **Email** : envoi SMTP réel via Mailpit en local/Docker Compose (pour se rapprocher du fonctionnement d'une vraie appli bancaire). Le lien d'activation est aussi renvoyé directement dans la réponse de l'API à l'ouverture de compte, donc l'application reste utilisable même sans serveur mail configuré (c'est le cas en démo publique)
-- **Conteneurisation** : Docker Compose
-- **CI/CD** : GitHub Actions (tests backend, build/tests frontend, validation des images Docker)
-- **Déploiement** : Render (backend en Web Service Docker, frontend en Static Site, PostgreSQL managé), avec profil Spring dédié (`application-render.properties`) et configuration CORS entre les deux domaines
+
+- Backend : Java, Spring Boot, Spring Security, Spring Data JPA, PostgreSQL, JWT
+- Frontend : Angular 22, standalone components, signals, router, HttpClient
+- Email : Mailpit + SMTP local/Docker
+- Conteneurisation : Docker Compose
+- CI/CD : GitHub Actions
+- Déploiement : Render
 
 ## Prérequis
-- Docker et Docker Compose installés
+
+- Docker
+- Docker Compose
+- Java 21 pour le développement local backend
+- Node.js + npm pour le frontend local
 
 ## Démarrage rapide
+
 ```bash
 git clone <url-du-repo>
 cd github_banque
-cp .env.example .env
-# Éditez .env et renseignez un vrai JWT_SECRET (voir section ci-dessous)
 docker compose up --build
 ```
 
-## Générer un secret JWT
-```bash
-openssl rand -base64 32
-```
-Copiez la valeur générée dans `.env`, à la variable `JWT_SECRET`.
+## Accès local
 
-## Accès une fois les conteneurs démarrés
 | Service | URL |
 |---|---|
 | Frontend | http://localhost:4200 |
-| Backend (API) | http://localhost:8080 |
-| Mailpit (emails interceptés) | http://localhost:8025 |
+| Backend API | http://localhost:8080 |
+| Mailpit | http://localhost:8025 |
 | PostgreSQL | localhost:5432 |
 
 ## Comptes de démonstration
-Trois comptes bancaires sont créés automatiquement au premier démarrage (voir `backend/src/main/resources/import.sql`) :
+
+Trois comptes d'exemple sont créés au premier démarrage via le script d'initialisation SQL :
+
 | Compte | Propriétaire | Solde |
 |---|---|---|
 | FR761234567 | Alice | 1000.00 € |
 | FR769876567 | Bob | 500.00 € |
 | FR769876589 | John | 600.00 € |
 
-⚠️ Ces comptes n'ont pas d'identifiants de connexion associés (pas de `Credentials`) — ils servent uniquement de données de test pour les virements. Pour tester le parcours complet (connexion, activation), ouvrez un nouveau compte via l'interface admin.
+> Ces comptes servent surtout pour tester les mouvements, les virements et l'historique. Pour tester le flux complet d'authentification, créez un client via l'interface.
 
 ## Parcours de test complet
-1. **Connexion admin** : sur `/login` (local ou démo en ligne), connectez-vous avec `admin` / `password123`
-2. **Ouvrir un compte courant** : remplissez le formulaire — un identifiant client (11 chiffres) est généré, ainsi que le lien d'activation correspondant, affiché directement dans l'interface
-3. **Activation** : suivez ce lien pour choisir un mot de passe (en local/Docker, un email est aussi réellement envoyé et consultable dans Mailpit via le bouton « View the activation email »)
-4. **Connexion client** : reconnectez-vous avec l'identifiant client et le mot de passe choisi
-5. **Ouvrir un compte épargne/Livret A/LDD** : depuis l'interface admin, ouvrez un nouveau compte en indiquant le numéro du compte courant à lier — aucune activation requise, il apparaît immédiatement dans « Linked savings accounts » sur le résumé du compte courant
-6. Ajoutez un bénéficiaire, effectuez un virement, puis consultez l'**historique des transactions**
-7. Mettez en place un **prélèvement automatique** vers un bénéficiaire (fréquence hebdomadaire/mensuelle), consultable et annulable depuis « Manage direct debits »
 
-## Endpoints de démonstration (dev uniquement)
-Ces routes déclenchent manuellement des traitements normalement exécutés par les jobs planifiés nocturnes, pour ne pas attendre 24h en test :
+1. Connectez-vous en tant qu'admin avec les identifiants de démonstration.
+2. Ouvrez un compte courant.
+3. Activez le compte via le lien d'activation envoyé par email ou affiché dans l'API.
+4. Connectez-vous avec le compte client nouvellement activé.
+5. Ouvrez un compte épargne ou un livret.
+6. Ajoutez un bénéficiaire puis réalisez un virement.
+7. Vérifiez l'historique des transactions et les prélèvements automatiques.
+
+## Endpoints de démonstration
+
+Quelques endpoints d'assistance permettent d'exécuter des traitements manuellement pendant le développement :
+
 ```bash
-# Calcule et crédite les intérêts sur tous les comptes épargne
 curl -X POST http://localhost:8080/api/dev/accrue-interest
-
-# Exécute tous les prélèvements automatiques arrivés à échéance
 curl -X POST http://localhost:8080/api/dev/execute-direct-debits
 ```
 
-## Arrêter l'application
+## Structure du projet
+
+```text
+github_banque/
+├── backend/                # API Spring Boot en Clean Architecture
+│   └── src/main/java/com/votrebanque/
+│       ├── application/
+│       ├── domain/
+│       └── infrastructure/
+├── frontend/               # Application Angular en architecture feature-based
+│   └── src/app/
+├── docker-compose.yml
+├── README.md
+└── .env                    # secrets locaux non versionnés
+```
+
+## Bonnes pratiques appliquées
+
+- Le noyau métier ne dépend pas de Spring ou de l'infrastructure.
+- Les ports décrivent les contrats des dépendances externes.
+- Les adaptateurs implémentent ces ports de manière technique.
+- Les composants UI ne portent pas la logique métier complète.
+- Les modèles de domaine restent purs et réutilisables.
+- La structure est cohérente avec le principe de séparation des responsabilités.
+
+## Développement local
+
+Pour lancer les projets séparément :
+
+```bash
+cd backend && ./mvnw spring-boot:run
+cd frontend && npm install && npm start
+```
+
+## Arrêt
+
 ```bash
 docker compose down
 ```
-Pour repartir d'une base de données vierge (supprime aussi les comptes créés manuellement) :
+
+Pour repartir sur une base vide :
+
 ```bash
 docker compose down -v
-```
-
-## Développement local (hors Docker)
-Le backend et le frontend peuvent aussi être lancés séparément en local — voir les README respectifs dans `backend/` et `frontend/` si présents, ou la configuration `application.properties` / `proxy.conf.json` de chaque projet.
-
-## Structure du projet
-```
-github_banque/
-├── backend/          # API Spring Boot (architecture hexagonale)
-├── frontend/         # Application Angular
-├── docker-compose.yml
-└── .env              # Secrets locaux (non versionné)
 ```

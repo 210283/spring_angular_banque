@@ -11,4 +11,4 @@ services:
 
   frontend:
     ports: !override
-      - "127.0.0.1:8091:80"
+      - "8091:80"

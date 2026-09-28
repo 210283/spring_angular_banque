@@ -1,0 +1,17 @@
+services:
+  # Ne jamais exposer Postgres et Mailpit publiquement en production.
+  postgres:
+    ports:
+      - "127.0.0.1:5432:5432"
+
+  mailpit:
+    ports:
+      - "127.0.0.1:8025:8025"
+
+  backend:
+    ports:
+      - "127.0.0.1:8080:8080"
+
+  frontend:
+    ports:
+      - "127.0.0.1:8091:80"

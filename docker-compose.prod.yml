@@ -1,14 +1,14 @@
 services:
   postgres:
-    ports: []
+    ports: !override []
 
   mailpit:
-    ports: []
+    ports: !override []
 
   backend:
-    ports:
+    ports: !override
       - "127.0.0.1:8080:8080"
 
   frontend:
-    ports:
+    ports: !override
       - "127.0.0.1:8091:80"

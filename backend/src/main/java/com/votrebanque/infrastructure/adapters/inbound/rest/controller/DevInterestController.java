@@ -1,6 +1,7 @@
 package com.votrebanque.infrastructure.adapters.inbound.rest.controller;
 
 import com.votrebanque.application.port.inbound.AccrueInterestUseCase;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -8,6 +9,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @RequestMapping("/api/dev")
+@ConditionalOnProperty(name = "app.demo.endpoints.enabled", havingValue = "true")
 public class DevInterestController {
 
     private final AccrueInterestUseCase accrueInterestUseCase;

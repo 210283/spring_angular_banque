@@ -45,7 +45,8 @@ public class SecurityConfig {
                 .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
             )
             .authorizeHttpRequests(auth -> auth
-                .requestMatchers("/api/auth/login", "/api/auth/activate", "/api/dev/**").permitAll()
+                .requestMatchers("/api/auth/login", "/api/auth/activate").permitAll()
+                .requestMatchers("/api/dev/**").hasRole("ADMIN")
                 .requestMatchers(HttpMethod.POST, "/api/accounts").hasRole("ADMIN")
                 .anyRequest().authenticated()
             )
@@ -55,12 +56,22 @@ public class SecurityConfig {
     }
 
     @Bean
-    public UserDetailsService userDetailsService() {
-        UserDetails admin = User.withUsername("admin")
-            .password(passwordEncoder().encode("password123"))
-            .roles("ADMIN")
-            .build();
-        return new InMemoryUserDetailsManager(admin);
+    public UserDetailsService userDetailsService(
+            @Value("${app.admin.enabled:false}") boolean adminEnabled,
+            @Value("${app.admin.username:admin}") String adminUsername,
+            @Value("${app.admin.password:}") String adminPassword) {
+        InMemoryUserDetailsManager users = new InMemoryUserDetailsManager();
+        if (adminEnabled) {
+            if (adminPassword.isBlank()) {
+                throw new IllegalStateException("app.admin.password must be set when app.admin.enabled is true");
+            }
+            UserDetails admin = User.withUsername(adminUsername)
+                .password(passwordEncoder().encode(adminPassword))
+                .roles("ADMIN")
+                .build();
+            users.createUser(admin);
+        }
+        return users;
     }
 
     @Bean

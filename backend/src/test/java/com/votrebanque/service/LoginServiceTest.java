@@ -19,7 +19,11 @@ import org.springframework.transaction.annotation.Transactional;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
-@SpringBootTest
+@SpringBootTest(properties = {
+    "app.admin.enabled=true",
+    "app.admin.username=admin",
+    "app.admin.password=password123"
+})
 @Import(TestcontainersConfiguration.class)
 @Transactional
 class LoginServiceTest {

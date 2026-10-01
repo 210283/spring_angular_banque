@@ -1,6 +1,7 @@
 package com.votrebanque.infrastructure.adapters.inbound.rest.controller;
 
 import com.votrebanque.application.port.inbound.GetActivationEmailPreviewUseCase;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -8,6 +9,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @RequestMapping("/api/dev")
+@ConditionalOnProperty(name = "app.demo.endpoints.enabled", havingValue = "true")
 public class DevMailController {
 
     private final GetActivationEmailPreviewUseCase getActivationEmailPreviewUseCase;

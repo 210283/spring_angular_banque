@@ -12,9 +12,7 @@ import { from } from 'rxjs';
   imports: [FormAddBeneficiaryComponent],
   template: `
     <div class="container">
-      <h2>Add a new beneficiary</h2>
-
-      @if (loading()) {
+      <h2>Add a new beneficiary</h2>      @if (loading()) {
         <section class="summary-loading"><img src="loading.gif" alt="Loading..." /></section>
       }
 
@@ -25,6 +23,9 @@ import { from } from 'rxjs';
       @if (!loading()) {
         <app-form-add-beneficiary [isSubmitting]="isSubmitting()" (onSubmitBeneficiary)="addBeneficiary($event)" />
       }
+
+
+      <button class="btn-secondary" (click)="goToTransfer()">Back to transfer</button>
     </div>
   `,
   styleUrl: '../scss/add-beneficiary-page.component.scss'
@@ -73,5 +74,9 @@ export class AddBeneficiaryPageComponent implements OnInit {
         this.errorMessage.set("An error occurred while adding the beneficiary.");
       }
     });
+  }
+
+  goToTransfer() {
+    this.router.navigate(['accounts', 'transfer']);
   }
 }

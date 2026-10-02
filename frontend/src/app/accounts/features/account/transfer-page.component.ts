@@ -51,6 +51,8 @@ import { from } from 'rxjs';
           }
         </ng-container>
       }
+
+      <button class="btn-secondary" (click)="goToSummary()">Back to summary</button>
     </div>
   `,
   styleUrl: '../scss/transfer-page.component.scss'
@@ -141,5 +143,9 @@ export class TransferPageComponent implements OnInit {
 
   goToDirectDebits() {
     this.router.navigate(['accounts', 'direct-debits']);
+  }
+
+  goToSummary() {
+    this.router.navigate(['accounts', 'summary']);
   }
 }

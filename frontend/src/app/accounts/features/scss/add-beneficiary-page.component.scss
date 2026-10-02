@@ -30,4 +30,18 @@
     border: 1px solid #f5b7b7;
     margin: 0;
   }
+
+  .btn-secondary {
+    margin-top: 1.5rem;
+    padding: 0.6rem 1.2rem;
+    background-color: transparent;
+    border: 1px solid #1a1a2e;
+    color: #1a1a2e;
+    border-radius: 4px;
+    cursor: pointer;
+
+    &:hover {
+      background-color: #f0f0f5;
+    }
+  }
 }

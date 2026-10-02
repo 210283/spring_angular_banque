@@ -18,6 +18,7 @@ import com.votrebanque.infrastructure.adapters.inbound.rest.response.AccountCrea
 import com.votrebanque.infrastructure.adapters.inbound.rest.response.AccountSummaryResponse;
 import com.votrebanque.infrastructure.adapters.inbound.rest.response.BeneficiaryResponse;
 import com.votrebanque.infrastructure.adapters.inbound.rest.response.TransactionResponse;
+import com.votrebanque.infrastructure.security.AccountAccessGuard;
 
 import lombok.RequiredArgsConstructor;
 
@@ -25,6 +26,7 @@ import java.util.List;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -38,6 +40,7 @@ import org.springframework.web.bind.annotation.RestController;
 public class AccountController {
 
     private final OpenAccountUseCase openAccountUseCase;
+    private final AccountAccessGuard accountAccessGuard;
     private final TransferUseCase transferUseCase;
     private final GetAccountSummaryUseCase getAccountSummaryUseCase;
     private final AddBeneficiaryUseCase addBeneficiaryUseCase;
@@ -47,7 +50,8 @@ public class AccountController {
     private final GetTransactionHistoryUseCase getTransactionHistoryUseCase;
     
     @PostMapping("/transfer")
-    public ResponseEntity<String> makeStranfer(@RequestBody TransferRequest request) {        
+    public ResponseEntity<String> makeStranfer(@RequestBody TransferRequest request, Authentication authentication) {
+        accountAccessGuard.requireAccess(authentication, request.sourceAccountNumber());
         AccountId sourceId = new AccountId(request.sourceAccountNumber());
         Money amountToSend = new Money(request.amount());
 
@@ -69,7 +73,9 @@ public class AccountController {
     }
 
     @GetMapping("/{accountNumber}/summary")
-    public ResponseEntity<AccountSummaryResponse> getAccountSummary(@PathVariable String accountNumber) {
+    public ResponseEntity<AccountSummaryResponse> getAccountSummary(@PathVariable String accountNumber,
+                                                                     Authentication authentication) {
+        accountAccessGuard.requireAccess(authentication, accountNumber);
         AccountId accountId = new AccountId(accountNumber);
         var summary = getAccountSummaryUseCase.getAccountSummary(accountId);
 
@@ -86,7 +92,9 @@ public class AccountController {
 
     @PostMapping("/{accountNumber}/beneficiaries")
     public ResponseEntity<BeneficiaryResponse> addBeneficiary(@PathVariable String accountNumber,
-                                                            @RequestBody AddBeneficiaryRequest request) {
+                                                            @RequestBody AddBeneficiaryRequest request,
+                                                            Authentication authentication) {
+        accountAccessGuard.requireAccess(authentication, accountNumber);
         var beneficiary = addBeneficiaryUseCase.addBeneficiary(
                 new AccountId(accountNumber),
                 request.label(),
@@ -108,7 +116,9 @@ public class AccountController {
     }
 
     @GetMapping("/{accountNumber}/beneficiaries")
-    public ResponseEntity<List<BeneficiaryResponse>> getBeneficiaries(@PathVariable String accountNumber) {
+    public ResponseEntity<List<BeneficiaryResponse>> getBeneficiaries(@PathVariable String accountNumber,
+                                                                       Authentication authentication) {
+        accountAccessGuard.requireAccess(authentication, accountNumber);
         var beneficiaries = getBeneficiariesUseCase.getBeneficiaries(new AccountId(accountNumber));
 
         List<BeneficiaryResponse> response = beneficiaries.stream()
@@ -145,7 +155,9 @@ public class AccountController {
     }
 
     @GetMapping("/{accountNumber}/transactions")
-    public ResponseEntity<List<TransactionResponse>> getTransactionHistory(@PathVariable String accountNumber) {
+    public ResponseEntity<List<TransactionResponse>> getTransactionHistory(@PathVariable String accountNumber,
+                                                                            Authentication authentication) {
+        accountAccessGuard.requireAccess(authentication, accountNumber);
         var history = getTransactionHistoryUseCase.getTransactionHistory(new AccountId(accountNumber));
 
         List<TransactionResponse> response = history.stream()
@@ -155,4 +167,5 @@ public class AccountController {
 
         return ResponseEntity.ok(response);
     }
+
 }

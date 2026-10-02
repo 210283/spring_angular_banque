@@ -67,6 +67,13 @@ public class ApplicationBeansConfig {
     }
 
     @Bean
+    public CheckAccountAccessUseCase checkAccountAccessUseCase(
+            CredentialsRepositoryPort credentialsRepository,
+            LinkedSavingsAccountRepositoryPort linkedSavingsAccountRepository) {
+        return new CheckAccountAccessService(credentialsRepository, linkedSavingsAccountRepository);
+    }
+
+    @Bean
     public CreateDirectDebitUseCase createDirectDebitUseCase(
             DirectDebitRepositoryPort directDebitRepository,
             AccountRepositoryPort accountRepository,
@@ -119,9 +126,9 @@ public class ApplicationBeansConfig {
     @Bean
     public GetLinkedSavingsAccountsUseCase getLinkedSavingsAccountsUseCase(
             CredentialsRepositoryPort credentialsRepository,
-            BeneficiaryRepositoryPort beneficiaryRepository,
+            LinkedSavingsAccountRepositoryPort linkedSavingsAccountRepository,
             AccountRepositoryPort accountRepository) {
-        return new GetLinkedSavingsAccountsService(credentialsRepository, beneficiaryRepository, accountRepository);
+        return new GetLinkedSavingsAccountsService(credentialsRepository, linkedSavingsAccountRepository, accountRepository);
     }
 
     @Bean
@@ -150,12 +157,14 @@ public class ApplicationBeansConfig {
     @Bean
     public OpenAccountUseCase openAccountUseCase(
             AccountRepositoryPort accountRepository,
+            LinkedSavingsAccountRepositoryPort linkedSavingsAccountRepository,
             RegisterUserUseCase registerUserUseCase,
             AddBeneficiaryUseCase addBeneficiaryUseCase,
             TransactionRecorder transactionRecorder,
             PlatformTransactionManager transactionManager) {
         return transactional(
-            new OpenAccountService(accountRepository, registerUserUseCase, addBeneficiaryUseCase, transactionRecorder),
+            new OpenAccountService(accountRepository, linkedSavingsAccountRepository, registerUserUseCase,
+                addBeneficiaryUseCase, transactionRecorder),
             transactionManager,
             false
         );

@@ -4,7 +4,9 @@ import com.votrebanque.TestcontainersConfiguration;
 import com.votrebanque.application.port.inbound.AccountOpeningResult;
 import com.votrebanque.application.port.inbound.OpenAccountUseCase;
 import com.votrebanque.application.port.outbound.AccountRepositoryPort;
+import com.votrebanque.application.port.outbound.LinkedSavingsAccountRepositoryPort;
 import com.votrebanque.domain.model.Account;
+import com.votrebanque.domain.model.AccountId;
 import com.votrebanque.domain.model.AccountType;
 import com.votrebanque.domain.model.Money;
 import org.junit.jupiter.api.Test;
@@ -24,6 +26,9 @@ class OpenAccountServiceTest {
 
     @Autowired
     private AccountRepositoryPort bankAccountRepository;
+
+    @Autowired
+    private LinkedSavingsAccountRepositoryPort linkedSavingsAccountRepository;
 
     @Autowired
     private OpenAccountUseCase openAccountService;
@@ -65,5 +70,22 @@ class OpenAccountServiceTest {
         assertThatThrownBy(() -> openAccountService.openAccount(owner, zeroDeposit, accountType, ""))
                 .isInstanceOf(IllegalArgumentException.class)
                 .hasMessageContaining("The initial deposit must be greater than 20.00");
+    }
+
+    @Test
+    void shouldPersistTheOwnershipLinkWhenOpeningSavingsAccount() {
+        AccountId currentAccountId = new AccountId("FR761234567");
+        bankAccountRepository.save(Account.open(currentAccountId, "Charlie", new Money(BigDecimal.valueOf(500.0))));
+
+        AccountOpeningResult savingsAccount = openAccountService.openAccount(
+            null,
+            new Money(BigDecimal.valueOf(250.0)),
+            AccountType.SAVINGS,
+            currentAccountId.value()
+        );
+
+        assertThat(linkedSavingsAccountRepository.isLinkedSavingsAccount(
+            currentAccountId, savingsAccount.accountId()
+        )).isTrue();
     }
 }

@@ -5,6 +5,7 @@ import com.votrebanque.application.port.inbound.AddBeneficiaryUseCase;
 import com.votrebanque.application.port.inbound.OpenAccountUseCase;
 import com.votrebanque.application.port.inbound.RegisterUserUseCase;
 import com.votrebanque.application.port.outbound.AccountRepositoryPort;
+import com.votrebanque.application.port.outbound.LinkedSavingsAccountRepositoryPort;
 import com.votrebanque.domain.exception.AccountNotFoundException;
 import com.votrebanque.domain.model.*;
 import lombok.RequiredArgsConstructor;
@@ -12,6 +13,7 @@ import lombok.RequiredArgsConstructor;
 public class OpenAccountService implements OpenAccountUseCase {
 
     private final AccountRepositoryPort bankAccountRepository;
+    private final LinkedSavingsAccountRepositoryPort linkedSavingsAccountRepository;
     private final RegisterUserUseCase registerUserUseCase;
     private final AddBeneficiaryUseCase addBeneficiaryUseCase;
     private final TransactionRecorder transactionRecorder;
@@ -53,6 +55,10 @@ public class OpenAccountService implements OpenAccountUseCase {
 
         bankAccountRepository.save(newAccount);
         transactionRecorder.recordDeposit(newAccountId, initialDeposit, newAccount.balance());
+
+        if (accountType.isSavings()) {
+            linkedSavingsAccountRepository.link(linkedAccountId, newAccountId);
+        }
 
         // A savings account does not have its own login credentials: no credentials, no activation, and no email address.
         // It is immediately active, and only accessible via the linked checking account (beneficiary relationship).

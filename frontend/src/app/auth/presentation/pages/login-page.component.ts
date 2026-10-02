@@ -33,7 +33,7 @@ import { AuthService } from '../../auth.service';
         }
       </form>
 
-      <button type="button" (click)="onTryDemo()" [disabled]="isDemoStarting">
+      <button type="button" class="btn-demo" (click)="onTryDemo()" [disabled]="isDemoStarting">
         @if (isDemoStarting) {
           <img src="loading.gif" alt="Loading..." />
           Préparation de la démo...

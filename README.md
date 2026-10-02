@@ -123,7 +123,6 @@ Les services Angular et les providers jouent ici un rôle comparable à la couch
 - Email : Mailpit + SMTP local/Docker
 - Conteneurisation : Docker Compose
 - CI/CD : GitHub Actions
-- Déploiement : Render
 
 ## Prérequis
 

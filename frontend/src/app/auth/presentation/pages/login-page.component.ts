@@ -33,6 +33,19 @@ import { AuthService } from '../../auth.service';
         }
       </form>
 
+      <button type="button" (click)="onTryDemo()" [disabled]="isDemoStarting">
+        @if (isDemoStarting) {
+          <img src="loading.gif" alt="Loading..." />
+          Préparation de la démo...
+        } @else {
+          Tester la démo
+        }
+      </button>
+
+      @if(demoErrorMessage){
+        <div class="error">{{ demoErrorMessage }}</div>
+      }
+
       <p class="signup-link">
         Not yet a customer ?
         <a routerLink="/open-account">Open account</a>
@@ -54,6 +67,9 @@ export class LoginPageComponent {
 
   isSubmitting = false;
   errorMessage: string | null = null;
+
+  isDemoStarting = false;
+  demoErrorMessage: string | null = null;
 
   onSubmit(): void {
     if (this.form.invalid) return;
@@ -77,6 +93,26 @@ export class LoginPageComponent {
       error: (err: any) => {
         this.isSubmitting = false;
         this.errorMessage = err.error?.detail || 'Incorrect username or password.';
+      }
+    });
+  }
+
+  onTryDemo(): void {
+    this.isDemoStarting = true;
+    this.demoErrorMessage = null;
+
+    this.authService.openDemoSession().subscribe({
+      next: () => {
+        this.isDemoStarting = false;
+        this.router.navigate(['/accounts', 'summary']);
+      },
+      error: (err: any) => {
+        this.isDemoStarting = false;
+        if (err.status === 429) {
+          this.demoErrorMessage = 'Une démo vient déjà d\'être créée depuis cette adresse, réessayez dans quelques minutes.';
+        } else {
+          this.demoErrorMessage = 'La démo est momentanément indisponible, réessayez plus tard.';
+        }
       }
     });
   }

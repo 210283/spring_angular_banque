@@ -1,6 +1,7 @@
 package com.votrebanque.infrastructure.config;
 
 import java.lang.reflect.Method;
+import java.time.Duration;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
@@ -71,6 +72,39 @@ public class ApplicationBeansConfig {
             CredentialsRepositoryPort credentialsRepository,
             LinkedSavingsAccountRepositoryPort linkedSavingsAccountRepository) {
         return new CheckAccountAccessService(credentialsRepository, linkedSavingsAccountRepository);
+    }
+
+    @Bean
+    public OpenDemoSessionUseCase openDemoSessionUseCase(
+            AccountRepositoryPort accountRepository,
+            CredentialsRepositoryPort credentialsRepository,
+            DemoSessionRepositoryPort demoSessionRepository,
+            AddBeneficiaryUseCase addBeneficiaryUseCase,
+            TransactionRecorder transactionRecorder,
+            PasswordEncoderPort passwordEncoder,
+            TokenProviderPort tokenProvider,
+            @Value("${app.demo.session.duration-minutes:120}") long sessionDurationMinutes,
+            PlatformTransactionManager transactionManager) {
+        return transactional(
+            new OpenDemoSessionService(
+                accountRepository, credentialsRepository, demoSessionRepository, addBeneficiaryUseCase,
+                transactionRecorder, passwordEncoder, tokenProvider, Duration.ofMinutes(sessionDurationMinutes)
+            ),
+            transactionManager,
+            false
+        );
+    }
+
+    @Bean
+    public PurgeExpiredDemoSessionsUseCase purgeExpiredDemoSessionsUseCase(
+            DemoSessionRepositoryPort demoSessionRepository,
+            DemoCleanupPort demoCleanupPort,
+            PlatformTransactionManager transactionManager) {
+        return transactional(
+            new PurgeExpiredDemoSessionsService(demoSessionRepository, demoCleanupPort),
+            transactionManager,
+            false
+        );
     }
 
     @Bean

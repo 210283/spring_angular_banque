@@ -41,6 +41,17 @@ export class AuthService {
     );
   }
 
+  openDemoSession(): Observable<LoginResponse> {
+    return from(this.authGateway.openDemoSession()).pipe(
+      tap(response => {
+        localStorage.setItem(this.TOKEN_KEY, response.token);
+        this.token.set(response.token);
+        this.username.set(this.extractClaim(response.token, 'sub'));
+        this.role.set(this.extractClaim(response.token, 'role'));
+      })
+    );
+  }
+
   logout(): void {
     this.clearSession();
     this.router.navigate(['/login']);

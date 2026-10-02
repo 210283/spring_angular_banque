@@ -8,6 +8,8 @@ import lombok.Setter;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 
+import org.hibernate.annotations.ColumnDefault;
+
 import com.votrebanque.domain.model.AccountType;
 
 @Entity
@@ -28,13 +30,16 @@ public class AccountEntity {
     private BigDecimal balance;
 
     @Enumerated(EnumType.STRING)
-    @Column(name = "account_type", nullable = false, columnDefinition = "varchar(20) default 'CURRENT'")
+    @Column(name = "account_type", nullable = false, columnDefinition = "varchar(20)")
+    @ColumnDefault("'CURRENT'")
     private AccountType accountType;
 
-    @Column(name = "interest_rate", nullable = false, precision = 6, scale = 4, columnDefinition = "numeric(6,4) default 0")
+    @Column(name = "interest_rate", nullable = false, precision = 6, scale = 4)
+    @ColumnDefault("0")
     private BigDecimal interestRate;
 
-    @Column(name = "last_interest_accrual_date", nullable = false, columnDefinition = "date default current_date")
+    @Column(name = "last_interest_accrual_date", nullable = false)
+    @ColumnDefault("current_date")
     private LocalDate lastInterestAccrualDate;
 
     @Version

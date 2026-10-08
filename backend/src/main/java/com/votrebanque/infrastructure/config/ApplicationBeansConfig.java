@@ -108,6 +108,17 @@ public class ApplicationBeansConfig {
     }
 
     @Bean
+    public TrackDemoAccountCreationUseCase trackDemoAccountCreationUseCase(
+            DemoSessionRepositoryPort demoSessionRepository,
+            PlatformTransactionManager transactionManager) {
+        return transactional(
+            new TrackDemoAccountCreationService(demoSessionRepository),
+            transactionManager,
+            false
+        );
+    }
+
+    @Bean
     public CreateDirectDebitUseCase createDirectDebitUseCase(
             DirectDebitRepositoryPort directDebitRepository,
             AccountRepositoryPort accountRepository,

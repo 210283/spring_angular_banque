@@ -75,18 +75,21 @@ public class OpenDemoSessionService implements OpenDemoSessionUseCase {
         credentials.changePassword(passwordEncoder.encode(randomPassword));
         credentialsRepository.save(credentials);
 
+        String demoAdminUsername = "demo-admin-" + UUID.randomUUID();
+
         Instant now = Instant.now();
         Instant expiresAt = now.plus(sessionDuration);
         demoSessionRepository.save(DemoSession.create(
             UUID.randomUUID().toString(),
-            username,
+            List.of(username, demoAdminUsername),
             List.of(mainAccountId.value(), secondaryAccountId.value()),
             now,
             expiresAt
         ));
 
-        String token = tokenProvider.generateToken(username, "ROLE_CLIENT");
+        String clientToken = tokenProvider.generateToken(username, "ROLE_CLIENT");
+        String adminToken = tokenProvider.generateToken(demoAdminUsername, "ROLE_DEMO_ADMIN");
 
-        return new DemoSessionResult(token, mainAccountId.value(), secondaryAccountId.value(), expiresAt);
+        return new DemoSessionResult(clientToken, adminToken, mainAccountId.value(), secondaryAccountId.value(), expiresAt);
     }
 }

@@ -38,7 +38,7 @@ public class DemoSessionController {
         DemoSessionResult result = openDemoSessionUseCase.openDemoSession();
 
         return ResponseEntity.status(HttpStatus.CREATED).body(new DemoSessionResponse(
-            result.token(), result.mainAccountNumber(), result.secondaryAccountNumber(), result.expiresAt()
+            result.clientToken(), result.adminToken(), result.mainAccountNumber(), result.secondaryAccountNumber(), result.expiresAt()
         ));
     }
 

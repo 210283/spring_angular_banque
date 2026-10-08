@@ -2,6 +2,7 @@ package com.votrebanque.infrastructure.persistence.adapter;
 
 import java.time.Instant;
 import java.util.List;
+import java.util.Optional;
 
 import org.springframework.stereotype.Component;
 
@@ -22,7 +23,7 @@ public class DemoSessionPersistenceAdapter implements DemoSessionRepositoryPort 
     public void save(DemoSession demoSession) {
         repository.save(new DemoSessionEntity(
             demoSession.id(),
-            demoSession.getUsername(),
+            demoSession.getUsernames(),
             demoSession.getAccountNumbers(),
             demoSession.getCreatedAt(),
             demoSession.getExpiresAt()
@@ -32,11 +33,20 @@ public class DemoSessionPersistenceAdapter implements DemoSessionRepositoryPort 
     @Override
     public List<DemoSession> findExpired(Instant now) {
         return repository.findAllByExpiresAtBefore(now).stream()
-            .map(entity -> DemoSession.reconstruct(
-                entity.getId(), entity.getUsername(), entity.getAccountNumbers(),
-                entity.getCreatedAt(), entity.getExpiresAt()
-            ))
+            .map(this::toDomain)
             .toList();
+    }
+
+    @Override
+    public Optional<DemoSession> findByUsername(String username) {
+        return repository.findByUsername(username).map(this::toDomain);
+    }
+
+    private DemoSession toDomain(DemoSessionEntity entity) {
+        return DemoSession.reconstruct(
+            entity.getId(), entity.getUsernames(), entity.getAccountNumbers(),
+            entity.getCreatedAt(), entity.getExpiresAt()
+        );
     }
 
     @Override

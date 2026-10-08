@@ -4,15 +4,20 @@ import java.time.Duration;
 import java.util.List;
 
 import com.votrebanque.TestcontainersConfiguration;
+import com.votrebanque.application.port.inbound.AccountOpeningResult;
 import com.votrebanque.application.port.inbound.CheckAccountAccessUseCase;
 import com.votrebanque.application.port.inbound.DemoSessionResult;
+import com.votrebanque.application.port.inbound.OpenAccountUseCase;
 import com.votrebanque.application.port.inbound.OpenDemoSessionUseCase;
 import com.votrebanque.application.port.inbound.PurgeExpiredDemoSessionsUseCase;
+import com.votrebanque.application.port.inbound.TrackDemoAccountCreationUseCase;
 import com.votrebanque.application.port.outbound.AccountRepositoryPort;
 import com.votrebanque.application.port.outbound.CredentialsRepositoryPort;
 import com.votrebanque.application.port.outbound.DemoSessionRepositoryPort;
 import com.votrebanque.domain.model.AccountId;
+import com.votrebanque.domain.model.AccountType;
 import com.votrebanque.domain.model.DemoSession;
+import com.votrebanque.domain.model.Money;
 import jakarta.persistence.EntityManager;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -35,6 +40,12 @@ class DemoSessionLifecycleTest {
 
     @Autowired
     private PurgeExpiredDemoSessionsUseCase purgeExpiredDemoSessionsUseCase;
+
+    @Autowired
+    private TrackDemoAccountCreationUseCase trackDemoAccountCreationUseCase;
+
+    @Autowired
+    private OpenAccountUseCase openAccountUseCase;
 
     @Autowired
     private CheckAccountAccessUseCase checkAccountAccessUseCase;
@@ -84,7 +95,7 @@ class DemoSessionLifecycleTest {
         // Force the session to be already expired, as if it had been created in the past.
         DemoSession expiredSession = DemoSession.reconstruct(
             findSessionId(session.mainAccountNumber()),
-            username,
+            List.of(username),
             List.of(session.mainAccountNumber(), session.secondaryAccountNumber()),
             java.time.Instant.now().minus(Duration.ofHours(3)),
             java.time.Instant.now().minus(Duration.ofHours(1))
@@ -101,10 +112,41 @@ class DemoSessionLifecycleTest {
         assertThat(credentialsRepository.findByUsername(username)).isEmpty();
     }
 
+    @Test
+    void demoAdminCanOpenAnAccountButCannotAccessOtherAccounts() {
+        DemoSessionResult session = openDemoSessionUseCase.openDemoSession();
+        flushAndClear();
+
+        String adminUsername = findAdminUsername(session.mainAccountNumber());
+
+        assertThat(checkAccountAccessUseCase.canAccess(adminUsername, new AccountId(session.mainAccountNumber()))).isFalse();
+
+        AccountOpeningResult opened = openAccountUseCase.openAccount("Nouveau client démo", Money.from(500), AccountType.CURRENT, "");
+        trackDemoAccountCreationUseCase.trackAccountOpenedByDemoAdmin(adminUsername, opened.accountId().value(), opened.username());
+        flushAndClear();
+
+        DemoSession updatedSession = demoSessionRepository.findByUsername(adminUsername).orElseThrow();
+        assertThat(updatedSession.getAccountNumbers()).contains(opened.accountId().value());
+        assertThat(updatedSession.getUsernames()).contains(opened.username());
+
+        // The demo admin still cannot read the account it just opened: creation rights only, no ownership bypass.
+        assertThat(checkAccountAccessUseCase.canAccess(adminUsername, opened.accountId())).isFalse();
+    }
+
+    private String findAdminUsername(String mainAccountNumber) {
+        return demoSessionRepository.findExpired(java.time.Instant.now().plus(Duration.ofDays(3650))).stream()
+            .filter(s -> s.getAccountNumbers().contains(mainAccountNumber))
+            .flatMap(s -> s.getUsernames().stream())
+            .filter(username -> username.startsWith("demo-admin-"))
+            .findFirst()
+            .orElseThrow();
+    }
+
     private String findUsernameByAccount(String accountNumber) {
         return demoSessionRepository.findExpired(java.time.Instant.now().plus(Duration.ofDays(3650))).stream()
             .filter(s -> s.getAccountNumbers().contains(accountNumber))
-            .map(DemoSession::getUsername)
+            .flatMap(s -> s.getUsernames().stream())
+            .filter(username -> !username.startsWith("demo-admin-"))
             .findFirst()
             .orElseThrow();
     }

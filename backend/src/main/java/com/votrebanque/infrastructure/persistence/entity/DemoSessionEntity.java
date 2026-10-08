@@ -26,8 +26,9 @@ public class DemoSessionEntity {
     @Id
     private String id;
 
-    @Column(nullable = false)
-    private String username;
+    @JdbcTypeCode(SqlTypes.ARRAY)
+    @Column(name = "usernames", nullable = false, columnDefinition = "text[]")
+    private List<String> usernames;
 
     @JdbcTypeCode(SqlTypes.ARRAY)
     @Column(name = "account_numbers", nullable = false, columnDefinition = "text[]")

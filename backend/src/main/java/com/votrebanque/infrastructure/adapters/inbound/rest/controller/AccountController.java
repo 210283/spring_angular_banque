@@ -8,6 +8,7 @@ import com.votrebanque.application.port.inbound.GetLinkedSavingsAccountsUseCase;
 import com.votrebanque.application.port.inbound.GetMyAccountUseCase;
 import com.votrebanque.application.port.inbound.GetTransactionHistoryUseCase;
 import com.votrebanque.application.port.inbound.OpenAccountUseCase;
+import com.votrebanque.application.port.inbound.TrackDemoAccountCreationUseCase;
 import com.votrebanque.application.port.inbound.TransferUseCase;
 import com.votrebanque.domain.model.AccountId;
 import com.votrebanque.domain.model.Money;
@@ -41,6 +42,7 @@ public class AccountController {
 
     private final OpenAccountUseCase openAccountUseCase;
     private final AccountAccessGuard accountAccessGuard;
+    private final TrackDemoAccountCreationUseCase trackDemoAccountCreationUseCase;
     private final TransferUseCase transferUseCase;
     private final GetAccountSummaryUseCase getAccountSummaryUseCase;
     private final AddBeneficiaryUseCase addBeneficiaryUseCase;
@@ -61,13 +63,20 @@ public class AccountController {
     }
 
     @PostMapping
-    public ResponseEntity<AccountCreationResponse> openAccount(@RequestBody OpenAccountRequest request) {   
+    public ResponseEntity<AccountCreationResponse> openAccount(@RequestBody OpenAccountRequest request,
+                                                                Authentication authentication) {
         AccountOpeningResult result = openAccountUseCase.openAccount(
             request.owner(),
             new Money(request.initialDeposit()),
             request.accountType(),
             request.linkedAccountNumber()
         );
+
+        if (isDemoAdmin(authentication)) {
+            trackDemoAccountCreationUseCase.trackAccountOpenedByDemoAdmin(
+                authentication.getName(), result.accountId().value(), result.username()
+            );
+        }
 
         return ResponseEntity.status(HttpStatus.CREATED).body(AccountCreationResponse.from(result));
     }
@@ -166,6 +175,11 @@ public class AccountController {
             .toList();
 
         return ResponseEntity.ok(response);
+    }
+
+    private boolean isDemoAdmin(Authentication authentication) {
+        return authentication.getAuthorities().stream()
+            .anyMatch(authority -> authority.getAuthority().equals("ROLE_DEMO_ADMIN"));
     }
 
 }

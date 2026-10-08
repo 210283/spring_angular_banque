@@ -26,7 +26,7 @@ public class PurgeExpiredDemoSessionsService implements PurgeExpiredDemoSessions
 
         for (DemoSession session : expiredSessions) {
             List<String> accountNumbers = new ArrayList<>(session.getAccountNumbers());
-            demoCleanupPort.deleteAccountsAndCredentials(accountNumbers, List.of(session.getUsername()));
+            demoCleanupPort.deleteAccountsAndCredentials(accountNumbers, session.getUsernames());
             demoSessionRepository.deleteById(session.id());
         }
 

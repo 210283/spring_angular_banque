@@ -84,7 +84,7 @@ export class LoginPageComponent {
         const returnUrl = this.route.snapshot.queryParamMap.get('returnUrl');
         if (returnUrl) {
           this.router.navigateByUrl(returnUrl);
-        } else if (this.authService.isAdmin()) {
+        } else if (this.authService.canOpenAccounts()) {
           this.router.navigate(['/open-account']);
         } else {
           this.router.navigate(['/accounts', 'summary']);

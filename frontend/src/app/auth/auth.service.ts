@@ -1,6 +1,6 @@
 import { Injectable, computed, signal, inject } from '@angular/core';
 import { Router } from '@angular/router';
-import { Observable, from, tap } from 'rxjs';
+import { Observable, from, map, tap } from 'rxjs';
 import { AUTH_GATEWAY } from './infrastructure/auth-gateway.token';
 import { LoginResponse } from './domain/ports/auth-gateway.port';
 
@@ -9,15 +9,20 @@ import { LoginResponse } from './domain/ports/auth-gateway.port';
 })
 export class AuthService {
   private readonly TOKEN_KEY = 'votrebanque.token';
+  private readonly DEMO_CLIENT_TOKEN_KEY = 'votrebanque.demoClientToken';
+  private readonly DEMO_ADMIN_TOKEN_KEY = 'votrebanque.demoAdminToken';
   private authGateway = inject(AUTH_GATEWAY);
 
   private token = signal<string | null>(null);
   private username = signal<string | null>(null);
   private role = signal<string | null>(null);
+  private demoModeActive = signal<boolean>(false);
 
   readonly isAuthenticated = computed(() => this.token() !== null);
   readonly currentUsername = computed(() => this.username());
   readonly isAdmin = computed(() => this.role() === 'ROLE_ADMIN');
+  readonly canOpenAccounts = computed(() => this.role() === 'ROLE_ADMIN' || this.role() === 'ROLE_DEMO_ADMIN');
+  readonly isDemoSession = computed(() => this.demoModeActive());
 
   constructor(private router: Router) {
     const savedToken = localStorage.getItem(this.TOKEN_KEY);
@@ -28,6 +33,7 @@ export class AuthService {
     } else if (savedToken) {
       localStorage.removeItem(this.TOKEN_KEY);
     }
+    this.demoModeActive.set(!!localStorage.getItem(this.DEMO_ADMIN_TOKEN_KEY));
   }
 
   login(username: string, password: string): Observable<LoginResponse> {
@@ -41,19 +47,45 @@ export class AuthService {
     );
   }
 
-  openDemoSession(): Observable<LoginResponse> {
+  openDemoSession(): Observable<void> {
     return from(this.authGateway.openDemoSession()).pipe(
       tap(response => {
-        localStorage.setItem(this.TOKEN_KEY, response.token);
-        this.token.set(response.token);
-        this.username.set(this.extractClaim(response.token, 'sub'));
-        this.role.set(this.extractClaim(response.token, 'role'));
-      })
+        localStorage.setItem(this.DEMO_CLIENT_TOKEN_KEY, response.clientToken);
+        localStorage.setItem(this.DEMO_ADMIN_TOKEN_KEY, response.adminToken);
+        this.demoModeActive.set(true);
+        this.activateToken(response.clientToken);
+      }),
+      map(() => undefined)
     );
+  }
+
+  // Bascule instantanée entre le compte client démo et l'admin démo, sans nouvel appel réseau.
+  switchToDemoClient(): void {
+    const token = localStorage.getItem(this.DEMO_CLIENT_TOKEN_KEY);
+    if (token) {
+      this.activateToken(token);
+    }
+  }
+
+  switchToDemoAdmin(): void {
+    const token = localStorage.getItem(this.DEMO_ADMIN_TOKEN_KEY);
+    if (token) {
+      this.activateToken(token);
+    }
+  }
+
+  private activateToken(token: string): void {
+    localStorage.setItem(this.TOKEN_KEY, token);
+    this.token.set(token);
+    this.username.set(this.extractClaim(token, 'sub'));
+    this.role.set(this.extractClaim(token, 'role'));
   }
 
   logout(): void {
     this.clearSession();
+    localStorage.removeItem(this.DEMO_CLIENT_TOKEN_KEY);
+    localStorage.removeItem(this.DEMO_ADMIN_TOKEN_KEY);
+    this.demoModeActive.set(false);
     this.router.navigate(['/login']);
   }
 

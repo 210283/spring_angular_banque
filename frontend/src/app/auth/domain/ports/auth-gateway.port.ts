@@ -3,7 +3,8 @@ export interface LoginResponse {
 }
 
 export interface DemoSessionResponse {
-  token: string;
+  clientToken: string;
+  adminToken: string;
   mainAccountNumber: string;
   secondaryAccountNumber: string;
   expiresAt: string;

@@ -50,16 +50,6 @@ backend/
 - Application : use cases, orchestration, ports d'entrée et de sortie.
 - Infrastructure : implémentations concrètes des ports, Spring Data, JWT, security, mail, etc.
 
-### Analogie Laravel
-
-Si vous venez de Laravel, on peut comparer la structure comme ceci :
-- Domain = le cœur métier, proche d'un "Service / Model business" pur, sans dépendance framework
-- Application = les Actions / Use Cases, comme des services d'application qui orchestrent la logique
-- Infrastructure = les Repository, Providers, Notifications, Security adapters, comme le côté "Service Container / Laravel Service Provider"
-- Ports = les interfaces de contrat, équivalents aux abstractions que Laravel utilise souvent via interfaces de repository ou services
-
-L'objectif est clair : le code métier ne doit pas savoir qu'il tourne sous Spring ou JPA.
-
 ## Architecture frontend
 
 Le frontend est ordonné par domaine fonctionnel, avec des couches distinctes :
@@ -94,16 +84,6 @@ frontend/src/app/
 - application : orchestration des cas d'usage pour les composants
 - infrastructure : adaptateurs HTTP, DTOs, appels API
 - features / presentation : composants, pages, formulaires et écrans
-
-### Analogie React
-
-Pour quelqu'un venant de React, l'architecture est proche d'une séparation par features :
-- domain = logique métier pure et types de données
-- application = hooks / use cases / orchestrateurs de logique
-- infrastructure = appels API et adaptateurs externes
-- presentation = composants visuels et pages
-
-Les services Angular et les providers jouent ici un rôle comparable à la couche d'accès aux données en React, avec un meilleur découpage par responsabilité.
 
 ## Fonctionnalités
 
